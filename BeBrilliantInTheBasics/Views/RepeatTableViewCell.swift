@@ -13,30 +13,38 @@ class RepeatTableViewCell: UITableViewCell {
     @IBOutlet weak var viewerImage: UIImageView!
     @IBOutlet weak var goalLabel: UILabel!
     @IBOutlet weak var bgView: UIView!
+    @IBOutlet weak var statusButton: UIButton!
     
-    var isCheckboxChecked: Bool = false
+    var indexPath: IndexPath? // Store the indexPath
+    var tapCount = 0
 
+    var statusBtn: (() -> ())?
+     
     override func awakeFromNib() {
-        super.awakeFromNib()
-        print("Cell awakeFromNib called")
-        bgView.setCellShadow()
-        // Initialization code
-    }
+         super.awakeFromNib()
+         print("Cell awakeFromNib called")
+         bgView.setCellShadow()
+         // Initialization code
+     }
 
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-    }
+     override func setSelected(_ selected: Bool, animated: Bool) {
+         super.setSelected(selected, animated: animated)
+     }
+     
     
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
-        // Add custom initialization code here
-        // For example:
-        // contentView.addSubview(UIView())
-        contentView.isUserInteractionEnabled = true
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-    }
-}
+    @IBAction func statusTapped(_ sender: Any) {
+//        tapCount += 1 // Increment the tap count
+        print("Status button tapped")
+        statusBtn?()
+     }
+     
+     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+         super.init(style: style, reuseIdentifier: reuseIdentifier)
+
+         contentView.isUserInteractionEnabled = true
+     }
+     
+     required init?(coder aDecoder: NSCoder) {
+         super.init(coder: aDecoder)
+     }
+ }

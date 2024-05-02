@@ -1,13 +1,13 @@
 //
-//  FindUsersViewController.swift
+//  ViewUsersViewController.swift
 //  BeBrilliantInTheBasics
 //
-//  Created by Decoreyon Green on 3/4/24.
+//  Created by Decoreyon Green on 5/22/24.
 //
 
 import UIKit
 
-class FindUsersViewController: UIViewController {
+class ViewUsersViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
