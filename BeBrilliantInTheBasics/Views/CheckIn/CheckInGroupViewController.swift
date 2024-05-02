@@ -38,7 +38,7 @@ extension CheckInGroupViewController: UITableViewDelegate, UITableViewDataSource
 //        print("tapped\(indexPath.row)")
 
         // Set the initial status of the cell
-        cell.isCheckboxChecked = false
+//        cell.isCheckboxChecked = false
         
         return cell
     }
@@ -52,10 +52,11 @@ extension CheckInGroupViewController: UITableViewDelegate, UITableViewDataSource
             // Toggle the status of the cell
             print("tapped\(indexPath.row)")
             
-            cell.isCheckboxChecked.toggle()
+//            cell.isCheckboxChecked.toggle()
             // Update the image based on the status
-            cell.statusImage.image = UIImage(named: cell.isCheckboxChecked ? "Checkbox_A" : "Checkbox_B")
+//            cell.statusImage.image = UIImage(named: cell.isCheckboxChecked ? "Checkbox_A" : "Checkbox_B")
             //            cell.statusImage.image = UIImage(named: cell.isCheckboxChecked ? "Checkbox_A" : cell.isCheckboxChecked ? "Checkbox_B" : "Checkbox_")
+
         }
         
         // Deselect the row after tapping

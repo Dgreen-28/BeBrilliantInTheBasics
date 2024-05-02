@@ -4,10 +4,13 @@
 //
 //  Created by Decoreyon Green on 2/26/24.
 //
-
 import UIKit
 
-class SignInViewController: UIViewController {
+class SignInViewController: UIViewController, UITextFieldDelegate {
+
+    // Declare email and password text fields as properties
+    private var emailTextField: UITextField!
+    private var passwordTextField: UITextField!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -15,6 +18,8 @@ class SignInViewController: UIViewController {
         setupLoginButton()
         setupTextFields()
         setupCreateAccountButton()
+        emailTextField.delegate = self
+        passwordTextField.delegate = self
     }
     
     private func setupBackground() {
@@ -27,6 +32,11 @@ class SignInViewController: UIViewController {
         
         // Apply red theme to the view
         view.backgroundColor = UIColor.red
+    }
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        // Dismiss the keyboard when return key is pressed
+        textField.resignFirstResponder()
+        return true
     }
     
     private func setupLoginButton() {
@@ -50,12 +60,54 @@ class SignInViewController: UIViewController {
     }
     
     @objc private func loginButtonTapped() {
-        dismiss(animated: true, completion: nil)
+        // Perform validation on email and password fields
+        guard let email = emailTextField.text, !email.isEmpty,
+              let password = passwordTextField.text, !password.isEmpty else {
+            // Show error message to the user if fields are empty
+            return
+        }
+
+        // Call the createAccount function from FirebaseSignIn
+        FirebaseSignIn.createAccount(email: email, password: password) { error in
+            if let error = error {
+                // Handle error (e.g., show error message to user)
+                print("Error creating account: \(error.localizedDescription)")
+            } else {
+                // Account creation successful, proceed with next steps (e.g., navigate to next screen)
+                print("Account created successfully")
+                self.dismiss(animated: true, completion: nil)
+            }
+        }
+//        // Perform validation on email and password fields
+//        guard let email = emailTextField.text, !email.isEmpty,
+//              let password = passwordTextField.text, !password.isEmpty else {
+//            // Show error message to the user if fields are empty
+//            return
+//        }
+//
+//        // Call the createAccount function
+//        createAccount(email: email, password: password) { error in
+//            if let error = error {
+//                // Handle error (e.g., show error message to user)
+//                print("Error creating account: \(error.localizedDescription)")
+//                print(self.emailTextField.text!)
+//                print(self.passwordTextField.text!)
+//            } else {
+//                // Account creation successful, proceed with next steps (e.g., navigate to next screen)
+//                print("Account created successfully")
+//                self.dismiss(animated: true, completion: nil)
+//
+//            }
+//        }
+//        
+        //TODO: Remove
+//        dismiss(animated: true, completion: nil)
+
     }
     
     private func setupTextFields() {
         // Add email text field
-        let emailTextField = UITextField()
+        emailTextField = UITextField()
         emailTextField.placeholder = "Email"
         emailTextField.backgroundColor = .white
         emailTextField.layer.cornerRadius = 8
@@ -65,7 +117,7 @@ class SignInViewController: UIViewController {
         view.addSubview(emailTextField)
         
         // Add password text field
-        let passwordTextField = UITextField()
+        passwordTextField = UITextField()
         passwordTextField.placeholder = "Password"
         passwordTextField.backgroundColor = .white
         passwordTextField.layer.cornerRadius = 8
@@ -108,4 +160,3 @@ class SignInViewController: UIViewController {
         ])
     }
 }
-
