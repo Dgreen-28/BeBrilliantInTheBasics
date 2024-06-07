@@ -8,6 +8,7 @@
 import UIKit
 import FirebaseAuth
 import FirebaseFirestore
+
 class ProfessionalIndividualViewController: UIViewController {
     var userGoals: [GoalCloud] = []
     
@@ -19,6 +20,7 @@ class ProfessionalIndividualViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     override func viewDidLoad() {
         super.viewDidLoad()
+        tableView.reloadData()
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(UINib(nibName: "RepeatTableViewCell", bundle: nil), forCellReuseIdentifier: "repeatCell")
@@ -56,10 +58,14 @@ class ProfessionalIndividualViewController: UIViewController {
                     let checkInSuccessRate = data["checkInSuccessRate"] as? Double ?? 0.0
                     let checkInSchedule = data["checkInSchedule"] as? String ?? ""
                     let checkInQuestion = data["checkInQuestion"] as? String ?? ""
-                    let isComplete = data["isComplete"] as? Bool
+                    let isComplete = data["isComplete"] as? Bool ?? false
+                    let viewersData = data["viewers"] as? [String: Bool] ?? [:]
                     
-                    let goal = GoalCloud(name: name, startDate: startDate, endDate: endDate, goalType: goalType, checkInSuccessRate: checkInSuccessRate, checkInSchedule: checkInSchedule, checkInQuestion: checkInQuestion, isComplete: isComplete, checkInHistory: [])
-
+                    // Extract viewer IDs
+                    let viewerIDs = Array(viewersData.keys)
+                    
+                    let goal = GoalCloud(name: name, startDate: startDate, endDate: endDate, goalType: goalType, checkInSuccessRate: checkInSuccessRate, checkInSchedule: checkInSchedule, checkInQuestion: checkInQuestion, isComplete: isComplete, checkInHistory: [], viewers: viewerIDs)
+                    
                     // Append the parsed goal to userGoals array
                     self.userGoals.append(goal)
                 }
@@ -77,11 +83,29 @@ extension ProfessionalIndividualViewController: UITableViewDelegate, UITableView
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "repeatCell", for: indexPath) as! RepeatTableViewCell
-
+        cell.selectionStyle = .none
+        // Set selected background view to clear color
+        cell.selectedBackgroundView?.isHidden = true
         let goal = userGoals[indexPath.row]
+        cell.contentView.backgroundColor = .folderYellow
+        
+        // Reset cell state
+        cell.goalLabel.text = ""
+        cell.statusImage.image = nil
+        cell.viewerLabel.text = ""
+        cell.viewerImage.isHidden = true
+        cell.bottomView.isHidden = true
+        
+        // Configure the cell with goal data
         cell.goalLabel.text = goal.name
-        // Set other cell properties based on goal data
-//        cell.statusImage.isHidden = true
+
+        if !goal.viewers.isEmpty {
+            cell.bottomView.isHidden = false
+            cell.viewerImage.isHidden = false
+            cell.viewerLabel.text = "Viewers: \(goal.viewers.count)"
+            cell.viewerImage.image = UIImage(named: "crown")
+        }
+
         switch goal.checkInSuccessRate {
         case 80.0...:
             cell.statusImage.image = UIImage(named: "Green")
@@ -90,43 +114,25 @@ extension ProfessionalIndividualViewController: UITableViewDelegate, UITableView
         default:
             cell.statusImage.image = UIImage(named: "Red")
         }
-//        cell.statusImage.image = UIImage(named: "Green")
-        cell.statusButton.setImage(UIImage(named: "Red"), for: .normal)
-        cell.statusButton.isHidden = true
-        cell.statusBtn = {[unowned self] in
-            let goals = self.userGoals[indexPath.row]
-//            cell.statusButton.setImage(UIImage(named: cell.isCheckboxChecked ? "Checkbox_A" : "Checkbox_B"), for: .normal)
-            print("tapped\(indexPath.row)")
-            
-        }
         
         return cell
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let goal = userGoals[indexPath.row]
         print("tapped \(indexPath.row)")
-
-        // Instantiate AddGoalViewController from storyboard
-        if let editVC = storyboard?.instantiateViewController(withIdentifier: "AddGoalViewController") as? AddGoalViewController {
-            // Pass the selected goal to AddGoalViewController
-            editVC.goal = goal
-
-            // Check if goalTextField is nil
-            if editVC.goalTextField == nil {
-                print("goalTextField is nil")
-            } else {
-                print("goalTextField is not nil")
-            }
-
-            // Present AddGoalViewController
-            navigationController?.pushViewController(editVC, animated: true)
-        }
+        
+            let checkInDataVC = CheckInDataViewController()
+            checkInDataVC.goal = goal
+            checkInDataVC.hidesBottomBarWhenPushed = true
+            checkInDataVC.goalTitle = goal.name // Pass the goal title
+            self.navigationController?.pushViewController(checkInDataVC, animated: true)
     }
 
 
 
+
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 80 // Set the height of the table view cell to 100
+        return 90 // Set the height of the table view cell to 100
     }
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         let config = UIContextMenuConfiguration(identifier: indexPath as NSIndexPath, previewProvider: nil) { (_) -> UIMenu? in
@@ -162,6 +168,7 @@ extension ProfessionalIndividualViewController: UITableViewDelegate, UITableView
                                             print("Goal:\(goalIdToDelete) deleted successfully")
                                             self.userGoals.remove(at: indexPath.row)
                                             tableView.deleteRows(at: [indexPath], with: .automatic)
+                                            tableView.reloadData()
                                         }
                                     }
                                 }
@@ -171,23 +178,37 @@ extension ProfessionalIndividualViewController: UITableViewDelegate, UITableView
                     self.present(alert, animated: true, completion: nil)
                 }
             
-            let checkHistoryAction = UIAction(
-                title: "View Check in History",
-                image: UIImage(systemName: "book")) { [weak self] _ in
+            let editAction = UIAction(
+                title: "Edit Goal",
+                image: UIImage(systemName: "pencil")) { [weak self] _ in
                     guard let self = self else { return }
-                    // Navigate to CheckInDataViewController
                     let goalToView = self.userGoals[indexPath.row]
-                    print("Goal to delete: \(goalToView)")
                     
-                    let checkInDataVC = CheckInDataViewController()
-                    checkInDataVC.goal = goalToView
-                    checkInDataVC.hidesBottomBarWhenPushed = true
-                    checkInDataVC.goalTitle = goalToView.name // Pass the goal title
-                    // Fetch and pass check-in data
-                    // Replace this with your own method to fetch check-in data
-                    // Example: checkInDataVC.checkInData = self.fetchCheckInData(for: goalToDelete)
-                    self.navigationController?.pushViewController(checkInDataVC, animated: true)
-            }
+                    // Instantiate AddGoalViewController from storyboard
+                    if let editVC = storyboard?.instantiateViewController(withIdentifier: "AddGoalViewController") as? AddGoalViewController {
+                        // Pass the selected goal to AddGoalViewController
+                        editVC.goal = goalToView
+                        // Check if goalTextField is nil
+                        if editVC.goalTextField == nil {
+                            print("goalTextField is nil")
+                        } else {
+                            print("goalTextField is not nil")
+                        }
+                        // Present AddGoalViewController
+                        navigationController?.pushViewController(editVC, animated: true)
+                    }
+                }
+            let checkInAction = UIAction(
+                title: "Manual Check in",
+                image: UIImage(systemName: "list.bullet.clipboard")) { _ in
+                    let goalToCheck = self.userGoals[indexPath.row]
+
+                    let manualCheckinVC = ManualCheckInViewController()
+                    manualCheckinVC.goal = goalToCheck
+                    manualCheckinVC.hidesBottomBarWhenPushed = true
+                    manualCheckinVC.goalTitle = goalToCheck.name // Pass the goal title
+                    self.navigationController?.pushViewController(manualCheckinVC, animated: true)
+                }
 
             
             let markAsCompletedAction = UIAction(
@@ -204,7 +225,7 @@ extension ProfessionalIndividualViewController: UITableViewDelegate, UITableView
                     // This closure will be called when the "Mark as Incomplete" action is selected from the context menu
                 }
 
-            return UIMenu(title: "", children: [deleteAction, checkHistoryAction, markAsCompletedAction, markAsIncompleteAction])
+            return UIMenu(title: "", children: [deleteAction, editAction, checkInAction, markAsCompletedAction, markAsIncompleteAction])
         }
         return config
     }

@@ -10,7 +10,7 @@ import Foundation
 import FirebaseAuth
 import FirebaseFirestore
 
-class AddGoalViewController: UIViewController, UITextViewDelegate, UITextFieldDelegate {
+class AddGoalViewController: UIViewController, AddViewersViewControllerDelegate, UITextViewDelegate, UITextFieldDelegate {
     
     @IBOutlet weak var goalTextField: UITextField!
     @IBOutlet weak var startDatePicker: UIDatePicker!
@@ -19,7 +19,10 @@ class AddGoalViewController: UIViewController, UITextViewDelegate, UITextFieldDe
     @IBOutlet weak var goalTypePicker: UIPickerView!
     @IBOutlet weak var checkInQTextView: UITextView!
     @IBOutlet weak var addGoalButton: UIButton!
+    @IBOutlet weak var addViewersButton: UIButton!
     
+    var viewersEdited: Bool = false
+    var friendsToAdd: [String] = []
     var goal: GoalCloud?
     private var db = Firestore.firestore()
 
@@ -28,8 +31,13 @@ class AddGoalViewController: UIViewController, UITextViewDelegate, UITextFieldDe
     let checkInRepeatOptions = ["None", "Daily", "Weekly", "Weekdays", "Bi-weekly", "Monthly", "Quarterly", "Yearly"]
     let goalTypeOption = ["Personal", "Professional"]
     var goalPage = ""
+    var goalViewers: [String] = []
         
-
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        print("testtest\(friendsToAdd)")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         hidesBottomBarWhenPushed = true
@@ -88,7 +96,6 @@ class AddGoalViewController: UIViewController, UITextViewDelegate, UITextFieldDe
             goalTextField.text = goal?.name
             checkInQTextView.text = goal?.checkInQuestion
         }
-
         
         // Find the index of checkInSchedule in checkInRepeatOptions
         if let index = checkInRepeatOptions.firstIndex(of: goal?.checkInSchedule ?? "Daily") {
@@ -103,32 +110,44 @@ class AddGoalViewController: UIViewController, UITextViewDelegate, UITextFieldDe
         addGoalButton.layer.cornerRadius = 8.0
         checkInQTextView.layer.cornerRadius = 8.0
         
+        
+        addViewersButton.layer.cornerRadius = 12.5
+
+        
         // Do any additional setup after loading the view.
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tapGesture)
+    }
+
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
     }
     
+    @IBAction func addViewersTapped(_ sender: Any) {
+        print("current: \(friendsToAdd)")
+        let addViewersVC = AddViewersViewController()
+        addViewersVC.goal = goal
+        addViewersVC.delegate = self
+        addViewersVC.friendsToAdd = friendsToAdd
+        self.navigationController?.pushViewController(addViewersVC, animated: true)
+    }
     @IBAction func AddGoalTapped(_ sender: Any) {
-        
-        
-        
-        //TODO: fix start date bug for if day hasn't come yet
+
         guard let currentUser = Auth.auth().currentUser else {
-            // Handle the case where there's no logged-in user
-            return
+                // Handle the case where there's no logged-in user
+                return
         }
 
-        // Gather data from UI
-        let name = goalTextField.text ?? ""
-        let startDate = startDatePicker.date
-        let endDate = endDatePicker.date
-        let checkInSchedule = checkInRepeatOptions[checkInRepeatPicker.selectedRow(inComponent: 0)]
-        let goalType = goalTypeOption[goalTypePicker.selectedRow(inComponent: 0)]
-        let checkInQuestion = checkInQTextView.text ?? ""
-        let checkInSuccessRate = 0.0 // You can modify this according to your logic
-        let isComplete: Bool? = nil // Initial value, can be nil
+            // Gather data from UI
+            let name = goalTextField.text ?? ""
+            let startDate = startDatePicker.date
+            let endDate = endDatePicker.date
+            let checkInSchedule = checkInRepeatOptions[checkInRepeatPicker.selectedRow(inComponent: 0)]
+            let goalType = goalTypeOption[goalTypePicker.selectedRow(inComponent: 0)]
+            let checkInQuestion = checkInQTextView.text ?? ""
+            let checkInSuccessRate = 0.0 // Modify according to your logic
+            let isComplete: Bool? = nil // Initial value, can be nil
 
-        if goal != nil {
-            // Update GoalCloud object
-            // Ensure that `goal` is not nil and proceed with updating it
             let updatedData: [String: Any] = [
                 "name": name,
                 "startDate": startDate,
@@ -136,67 +155,149 @@ class AddGoalViewController: UIViewController, UITextViewDelegate, UITextFieldDe
                 "goalType": goalType,
                 "checkInSchedule": checkInSchedule,
                 "checkInQuestion": checkInQuestion
-                // Add other fields to update as needed
             ]
+
+            // Check if goal name is empty
+            if name.isEmpty {
+                presentAlert(title: "Error", message: "The goal needs a name.")
+                return
+            }
+
+            // Check if check-in question is empty when check-in schedule is not "none"
+            if checkInSchedule != "none" && checkInQuestion.isEmpty {
+                presentAlert(title: "Error", message: "You need to provide a check-in question.")
+                return
+            }
 
             let db = Firestore.firestore()
 
-            // Query Firestore to fetch user's goals based on user ID and goal name
-            db.collection("users").document(currentUser.uid).collection("goals")
-                .whereField("name", isEqualTo: goal!.name)
-                .getDocuments { (querySnapshot, error) in
-                    if let error = error {
-                        print("Error fetching user goals: \(error.localizedDescription)")
-                    } else {
-                        guard let documents = querySnapshot?.documents else {
-                            print("No documents found in the 'goals' collection")
+            if let goal = goal {
+                // Updating an existing goal
+                if goal.name == name {
+                    // The goal name hasn't changed, proceed with update
+                    self.fetchAndUpdateGoals(currentUser: currentUser, goalName: goal.name, updatedData: updatedData)
+                } else {
+                    // The goal name has changed, check for duplicates
+                    db.collection("users").document(currentUser.uid).collection("goals")
+                        .whereField("name", isEqualTo: name)
+                        .getDocuments { (snapshot, error) in
+                            if let error = error {
+                                print("Error fetching goals: \(error.localizedDescription)")
+                                return
+                            }
+
+                            guard let documents = snapshot?.documents else {
+                                print("No goal documents found")
+                                return
+                            }
+
+                            if documents.isEmpty {
+                                // No conflict, proceed with goal update
+                                self.fetchAndUpdateGoals(currentUser: currentUser, goalName: goal.name, updatedData: updatedData)
+                            } else {
+                                // Name conflict with an existing goal
+                                self.presentDuplicateNameAlert()
+                            }
+                        }
+                }
+            } else {
+                // Creating a new goal, check for duplicates
+                db.collection("users").document(currentUser.uid).collection("goals")
+                    .whereField("name", isEqualTo: name)
+                    .getDocuments { (snapshot, error) in
+                        if let error = error {
+                            print("Error fetching goals: \(error.localizedDescription)")
                             return
                         }
 
-                        for document in documents {
-                            let documentID = document.documentID
-                            print("Updating document with ID: \(documentID)")
+                        guard let documents = snapshot?.documents else {
+                            print("No goal documents found")
+                            return
+                        }
 
-                            db.collection("users").document(currentUser.uid).collection("goals").document(documentID).updateData(updatedData) { error in
+                        if documents.isEmpty {
+                            // No conflict, proceed with goal creation
+                            var newGoal = GoalCloud(
+                                name: name,
+                                startDate: startDate,
+                                endDate: endDate,
+                                goalType: goalType,
+                                checkInSuccessRate: checkInSuccessRate,
+                                checkInSchedule: checkInSchedule,
+                                checkInQuestion: checkInQuestion,
+                                isComplete: isComplete,
+                                checkInHistory: [],
+                                viewers: []
+                            )
+
+                            addGoalToFirebase(goal: &newGoal, userId: currentUser.uid, viewers: newGoal.viewers) { error in
                                 if let error = error {
-                                    print("Error updating goal with ID \(documentID): \(error.localizedDescription)")
+                                    print("Error adding goal to Firebase: \(error.localizedDescription)")
                                 } else {
-                                    print("Goal with ID \(documentID) updated successfully")
-                                    self.navigationController?.popViewController(animated: true)
-                                    
-                                    self.addFriendAsViewerToGoal(goalID: documentID, friendEmail: "Test28@gmail.com") { error in
+                                    print("Goal added successfully")
+                                    self.fetchAndUpdateGoals(currentUser: currentUser, goalName: newGoal.name, updatedData: updatedData)
+                                }
+                            }
+                        } else {
+                            // Name conflict with an existing goal
+                            self.presentDuplicateNameAlert()
+                        }
+                    }
+            }
+        }
+
+        private func presentAlert(title: String, message: String) {
+            let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+            let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+            alertController.addAction(okAction)
+            self.present(alertController, animated: true, completion: nil)
+        }
+
+        func fetchAndUpdateGoals(currentUser: User, goalName: String, updatedData: [String: Any]) {
+            let db = Firestore.firestore()
+            db.collection("users").document(currentUser.uid).collection("goals")
+                .whereField("name", isEqualTo: goalName)
+                .getDocuments { (querySnapshot, error) in
+                    if let error = error {
+                        print("Error fetching user goals: \(error.localizedDescription)")
+                        return
+                    }
+
+                    guard let documents = querySnapshot?.documents else {
+                        print("No documents found in the 'goals' collection")
+                        return
+                    }
+
+                    for document in documents {
+                        let documentID = document.documentID
+                        print("Updating document with ID: \(documentID)")
+
+                        db.collection("users").document(currentUser.uid).collection("goals").document(documentID).updateData(updatedData) { error in
+                            if let error = error {
+                                print("Error updating goal with ID \(documentID): \(error.localizedDescription)")
+                            } else {
+                                print("Goal with ID \(documentID) updated successfully")
+                                self.navigationController?.popViewController(animated: true)
+                                if self.viewersEdited {
+                                    self.addFriendsAsViewersToGoal(goalID: documentID, friendUIDs: self.friendsToAdd) { error in
                                         if let error = error {
                                             print("Error adding friend as viewer: \(error.localizedDescription)")
                                         } else {
                                             print("Friend added as viewer successfully")
                                         }
                                     }
-                                    // Optionally, perform any additional actions after updating each document
                                 }
                             }
                         }
                     }
                 }
-        } else {
-            // Create GoalCloud object
-            var goal = GoalCloud(name: name, startDate: startDate, endDate: endDate, goalType: goalType, checkInSuccessRate: checkInSuccessRate, checkInSchedule: checkInSchedule, checkInQuestion: checkInQuestion, isComplete: isComplete, checkInHistory: [], viewers: [])
-
-            // Add goal to Firebase
-            addGoalToFirebase(goal: &goal, userId: currentUser.uid, viewers: goal.viewers) { error in
-                if let error = error {
-                    // Handle error
-                    print("Error adding goal to Firebase: \(error.localizedDescription)")
-                } else {
-                    // Goal added successfully
-                    print("Goal added successfully")
-                    // Optionally, navigate back or perform other actions
-                }
-            }
-            self.navigationController?.popViewController(animated: true)
         }
 
-    }
-    // Function to add a single friend as a viewer to a goal
+        func presentDuplicateNameAlert() {
+            let alert = UIAlertController(title: "Duplicate Goal Name", message: "A goal with this name already exists. Please choose a different name.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            self.present(alert, animated: true, completion: nil)
+        }
     func addFriendAsViewerToGoal(goalID: String, friendEmail: String, completion: @escaping (Error?) -> Void) {
         guard let currentUser = Auth.auth().currentUser else {
             completion(NSError(domain: "Authentication Error", code: 401, userInfo: [NSLocalizedDescriptionKey: "Current user not found"]))
@@ -231,73 +332,83 @@ class AddGoalViewController: UIViewController, UITextViewDelegate, UITextFieldDe
         }
     }
 
-
-    func addFriendsAsViewersToGoal(goalID: String, friendEmails: [String], completion: @escaping (Error?) -> Void) {
+    func didUpdateViewers(_ viewers: [String]) {
+        self.friendsToAdd = viewers
+        print("Updated friends to add: \(self.friendsToAdd)")
+    }
+    func didEditViewers() {
+        self.viewersEdited = true
+        print("Viewers edited: \(self.viewersEdited)")
+    }
+    
+    func addFriendsAsViewersToGoal(goalID: String, friendUIDs: [String], completion: @escaping (Error?) -> Void) {
         let db = Firestore.firestore()
-        let currentUserID = Auth.auth().currentUser?.uid ?? ""
-        
+        guard let currentUserID = Auth.auth().currentUser?.uid else {
+            completion(NSError(domain: "", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"]))
+            return
+        }
+
+        // Adjust the path to include user ID if goals are stored under each user
+        let goalDocumentRef = db.collection("users").document(currentUserID).collection("goals").document(goalID)
+
         // Retrieve the goal document
-        db.collection("goals").document(goalID).getDocument { (goalSnapshot, goalError) in
+        goalDocumentRef.getDocument { (goalSnapshot, goalError) in
             if let goalError = goalError {
                 completion(goalError)
                 return
             }
             
-            guard let goalDocument = goalSnapshot else {
-                completion(nil)
+            guard let goalDocument = goalSnapshot, goalDocument.exists else {
+                completion(NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Goal document not found"]))
                 return
             }
             
-            // Check if the current user is the owner of the goal
-            guard let goalOwnerID = goalDocument.data()?["ownerID"] as? String, goalOwnerID == currentUserID else {
-                // If the current user is not the owner of the goal, return without adding viewers
-                completion(nil)
-                return
+//            // Check if the current user is the owner of the goal
+//            guard let goalOwnerID = goalDocument.data()?["ownerID"] as? String, goalOwnerID == currentUserID else {
+//                // If the current user is not the owner of the goal, return without adding viewers
+//                completion(NSError(domain: "", code: 403, userInfo: [NSLocalizedDescriptionKey: "User is not the owner of the goal"]))
+//                return
+//            }
+            
+            // Prepare the viewers data
+            var viewersData = [String: Bool]()
+            for friendUID in friendUIDs {
+                viewersData[friendUID] = true
             }
             
-            // Retrieve the user documents based on the provided emails
-            db.collection("users").whereField("email", in: friendEmails).getDocuments { (snapshot, error) in
+            // Update the goal document with the new viewers
+            goalDocumentRef.updateData(["viewers": viewersData]) { error in
                 if let error = error {
+                    print("Error adding viewers to goal: \(error.localizedDescription)")
                     completion(error)
-                    return
+                } else {
+                    completion(nil) // Completion after all viewers are added
                 }
-                
-                // Get an array of friend UIDs
-                let friendUIDs = snapshot?.documents.compactMap { $0.data()["uid"] as? String } ?? []
-                
-                // Add each friend as a viewer to the goal
-                for friendUID in friendUIDs {
-                    let data: [String: Any] = [
-                        "viewers.\(friendUID)": true
-                    ]
-                    
-                    // Update the goal document to add the friend as a viewer
-                    db.collection("goals").document(goalID).setData(data, merge: true) { error in
-                        if let error = error {
-                            print("Error adding viewer to goal: \(error.localizedDescription)")
-                        }
-                    }
-                }
-                
-                completion(nil) // Completion after all viewers are added
             }
         }
     }
-
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         // Dismiss the keyboard when return key is pressed
         textField.resignFirstResponder()
+        
+        // Check if checkInQTextView is empty
+        if checkInQTextView.text.isEmpty {
+            // Set checkInQTextView's text to goalTextField's text
+            checkInQTextView.text = textField.text
+        }
+        
         return true
     }
-        func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-            if text == "\n" {
-                // Return key was pressed, handle return action here
-                textView.resignFirstResponder() // Dismiss the keyboard
-                // You can perform additional actions here
-                return false // Prevent insertion of new line
-            }
-            return true
+    
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if text == "\n" {
+            // Return key was pressed, handle return action here
+            textView.resignFirstResponder() // Dismiss the keyboard
+            // You can perform additional actions here
+            return false // Prevent insertion of new line
         }
+        return true
+    }
 
 }
 

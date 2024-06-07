@@ -11,95 +11,113 @@ import FirebaseFirestore
 
 class FirebaseSignIn {
 
-    static func createAccount(email: String, password: String, completion: @escaping (Error?) -> Void) {
-        Auth.auth().createUser(withEmail: email, password: password) { (authResult, error) in
-            if let error = error {
+//    static func createAccount(email: String, password: String, completion: @escaping (Error?) -> Void) {
+//        Auth.auth().createUser(withEmail: email, password: password) { (authResult, error) in
+//            if let error = error {
+//                // Handle error
+//                completion(error)
+//            } else {
+//                // Account creation successful
+//                saveAuthenticationState()
+//                checkAuthenticationState()
+//                
+//                // Create a corresponding document in Firestore
+//                let db = Firestore.firestore()
+//                let userId = authResult?.user.uid ?? ""
+//                db.collection("users").document(userId).setData(["email": email, "uid": userId]) { error in
+//                    if let error = error {
+//                        // Handle Firestore error
+//                        completion(error)
+//                    } else {
+//                        // Firestore document creation successful
+//                        completion(nil)
+//                    }
+//                }
+//            }
+//        }
+//    }
+//    
+
+    func loginUser(username: String?, email: String?, password: String, completion: @escaping (Bool) -> Void) {
+        if let email = email {
+            // Email login
+            Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
+                guard authResult != nil, error == nil else {
+                    completion(false)
+                    return
+                }
+                // Login successful, save authentication state and check it
+                FirebaseSignIn.saveAuthenticationState()
+                FirebaseSignIn.checkAuthenticationState()
+                completion(true)
+            }
+        } else if let username = username {
+            // Username login (assuming username is the email address here)
+            Auth.auth().signIn(withEmail: username, password: password) { authResult, error in
+                guard authResult != nil, error == nil else {
+                    completion(false)
+                    return
+                }
+                // Login successful, save authentication state and check it
+                FirebaseSignIn.saveAuthenticationState()
+                FirebaseSignIn.checkAuthenticationState()
+                completion(true)
+            }
+        }
+    }
+
+    static func createAccount(email: String, username: String, password: String, confirmPassword: String, completion: @escaping (Error?) -> Void) {
+        print("Attempting to create account...")
+        
+        // Check if passwords match
+        guard password == confirmPassword else {
+            print("Passwords do not match.")
+            completion(NSError(domain: "com.yourapp.error", code: -1, userInfo: [NSLocalizedDescriptionKey: "Passwords do not match"]))
+            return
+        }
+        
+        print("Passwords match.")
+        
+        // Create user with email and password
+        
+        // After creating the user in Firebase Authentication
+        Auth.auth().createUser(withEmail: email, password: password) { (authResult, createUserError) in
+            if let createUserError = createUserError {
                 // Handle error
-                completion(error)
+                print("Error creating user:", createUserError.localizedDescription)
+                completion(createUserError)
             } else {
                 // Account creation successful
-                saveAuthenticationState()
-                checkAuthenticationState()
+                print("Account created successfully for email:", email)
                 
-                // Create a corresponding document in Firestore
+                // Store additional user data in Firestore
+                let userData = [
+                    "uid": authResult!.user.uid,
+                    "username": username,
+                    "email": email,
+                    // Add more fields as needed
+                ]
+                
+                // Reference to the Firestore database
                 let db = Firestore.firestore()
-                let userId = authResult?.user.uid ?? ""
-                db.collection("users").document(userId).setData(["email": email]) { error in
+                
+                // Add the user data to Firestore under a 'users' collection
+                db.collection("users").document(authResult!.user.uid).setData(userData) { error in
                     if let error = error {
-                        // Handle Firestore error
+                        // Handle error
+                        print("Error writing user data to Firestore:", error.localizedDescription)
                         completion(error)
                     } else {
-                        // Firestore document creation successful
+                        // Data successfully written to Firestore
+                        print("User data written to Firestore")
                         completion(nil)
                     }
                 }
             }
         }
+
     }
-/*
- static func createAccount(email: String, username: String, password: String, completion: @escaping (Error?) -> Void) {
-     // Check if email or username has already been used
-     Auth.auth().fetchProviders(forEmail: email) { (providers, error) in
-         if let error = error {
-             // Handle error
-             completion(error)
-         } else if let providers = providers, !providers.isEmpty {
-             // Email is already in use
-             let emailInUseError = NSError(domain: "YourAppDomain", code: 0, userInfo: [NSLocalizedDescriptionKey: "Email is already in use."])
-             completion(emailInUseError)
-         } else {
-             // Check if username has already been used
-             let db = Firestore.firestore()
-             db.collection("users").whereField("username", isEqualTo: username).getDocuments { (snapshot, error) in
-                 if let error = error {
-                     // Handle Firestore error
-                     completion(error)
-                 } else if let snapshot = snapshot, !snapshot.isEmpty {
-                     // Username is already in use
-                     let usernameInUseError = NSError(domain: "YourAppDomain", code: 0, userInfo: [NSLocalizedDescriptionKey: "Username is already in use."])
-                     completion(usernameInUseError)
-                 } else {
-                     // Neither email nor username is in use, proceed with account creation
-                     Auth.auth().createUser(withEmail: email, password: password) { (authResult, error) in
-                         if let error = error {
-                             // Handle error
-                             completion(error)
-                         } else if let authResult = authResult {
-                             // Account creation successful
-                             saveAuthenticationState()
-                             checkAuthenticationState()
-                             
-                             // Create a corresponding document in Firestore
-                             let userId = authResult.user.uid
-                             db.collection("users").document(userId).setData(["email": email, "username": username]) { error in
-                                 if let error = error {
-                                     // Handle Firestore error
-                                     completion(error)
-                                 } else {
-                                     // Firestore document creation successful
-                                     completion(nil)
-                                 }
-                             }
-                         }
-                     }
-                 }
-             }
-         }
-     }
- }
-*/
-/* static func signIn(email: String, password: String, completion: @escaping (AuthDataResult?, Error?) -> Void) {
- Auth.auth().signIn(withEmail: email, password: password) { (authResult, error) in
-     if let error = error {
-         // Handle error
-         completion(nil, error)
-     } else if let authResult = authResult {
-         // Sign in successful
-         completion(authResult, nil)
-     }
- }
-}
-*/
+
     static func signOut(completion: @escaping (Error?) -> Void) {
         do {
             try Auth.auth().signOut()
@@ -128,49 +146,3 @@ class FirebaseSignIn {
     }
 }
 
-
-//private func checkAuthenticationState() {
-//    if let authToken = UserDefaults.standard.string(forKey: "AuthToken") {
-//        // User is signed in, proceed to the main screen or wherever appropriate
-//        print("User is signed in with token: \(authToken)")
-//        // Proceed to the main screen
-//    } else {
-//        // User is not signed in, navigate to the sign-in screen or perform other actions
-//        print("User is not signed in")
-//        // Navigate to the sign-in screen
-//    }
-//}
-
-//@IBAction func signUpButtonTapped(_ sender: UIButton) {
-//    // Perform validation on email and password fields
-//    guard let email = emailTextField.text, !email.isEmpty,
-//          let password = passwordTextField.text, !password.isEmpty else {
-//        // Show error message to the user if fields are empty
-//        return
-//    }
-//
-//    // Call the createAccount function
-//    createAccount(email: email, password: password) { error in
-//        if let error = error {
-//            // Handle error (e.g., show error message to user)
-//            print("Error creating account: \(error.localizedDescription)")
-//        } else {
-//            // Account creation successful, proceed with next steps (e.g., navigate to next screen)
-//            print("Account created successfully")
-//        }
-//    }
-//}
-
-//@IBAction func signOutButtonTapped(_ sender: UIButton) {
-//    // Call the signOut function
-//    signOut { error in
-//        if let error = error {
-//            // Handle error (e.g., show error message to user)
-//            print("Error signing out: \(error.localizedDescription)")
-//        } else {
-//            // Sign out successful, proceed with next steps (e.g., navigate to sign-in screen)
-//            print("Sign out successful")
-//            // Navigate to sign-in screen or perform any other necessary action
-//        }
-//    }
-//}

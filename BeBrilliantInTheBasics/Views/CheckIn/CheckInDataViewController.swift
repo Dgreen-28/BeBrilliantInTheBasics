@@ -12,7 +12,8 @@ import FirebaseAuth
 class CheckInDataViewController: UIViewController {
     
     var tableView: UITableView!
-    
+    var isViewer = false
+    var ownerUID = ""
     var goal: GoalCloud?
     var goalTitle: String?
     var checkInData: [GoalCheckin] = []
@@ -75,35 +76,87 @@ class CheckInDataViewController: UIViewController {
     }
     
     func loadCheckInData() {
-        guard let currentUser = Auth.auth().currentUser,
-              let goalName = goal?.name else {
-            // Handle the case where there's no logged-in user or goal name is missing
-            return
+        // Check if the user is a viewer
+        if !isViewer {
+            guard let currentUser = Auth.auth().currentUser,
+                  let goalName = goal?.name else {
+                // Handle the case where there's no logged-in user or goal name is missing
+                return
+            }
+
+            fetchGoalDocument(for: currentUser.uid, goalName: goalName)
+        } else {
+            guard let ownerUID = goal?.ownerUID, // Assuming `goal` has `ownerUID` property
+                  let goalName = goal?.name else {
+                // Handle the case where there's no logged-in user or goal name is missing
+                return
+            }
+
+            fetchGoalDocument(for: ownerUID, goalName: goalName)
         }
-        
+    }
+
+    private func fetchGoalDocument(for userID: String, goalName: String) {
         let db = Firestore.firestore()
-        db.collection("users").document(currentUser.uid)
+        db.collection("users").document(userID)
             .collection("goals").whereField("name", isEqualTo: goalName)
             .getDocuments { (snapshot, error) in
                 if let error = error {
                     print("Error fetching goal documents: \(error.localizedDescription)")
                     return
                 }
-                
+
                 guard let documents = snapshot?.documents else {
                     print("No goal documents found")
                     return
                 }
-                
+
                 if let goalDocument = documents.first {
                     let goalId = goalDocument.documentID
-                    self.fetchCheckInsForGoal(with: goalId)
+                    self.fetchCheckInsForGoal(with: goalId, userID: userID)
                 } else {
                     print("Goal document not found for name: \(goalName)")
                 }
             }
     }
-    
+
+    private func fetchCheckInsForGoal(with goalId: String, userID: String) {
+        let db = Firestore.firestore()
+        db.collection("users").document(userID)
+            .collection("goals").document(goalId)
+            .collection("checkins").getDocuments { (snapshot, error) in
+                if let error = error {
+                    print("Error fetching check-ins: \(error.localizedDescription)")
+                    return
+                }
+
+                guard let documents = snapshot?.documents else {
+                    print("No check-in documents found")
+                    return
+                }
+
+                self.checkInData = documents.compactMap { document in
+                    let data = document.data()
+                    guard let goalName = data["goalName"] as? String,
+                          let isComplete = data["isComplete"] as? Bool,
+                          let timestamp = data["dateCompleted"] as? Timestamp else {
+                        return nil
+                    }
+
+                    let dateCompleted = timestamp.dateValue()
+                    return GoalCheckin(documentID: document.documentID, goalId: goalId, goalName: goalName, isComplete: isComplete, dateCompleted: dateCompleted)
+                }
+
+                // Sort the check-in data array by date completed in descending order
+                self.checkInData.sort(by: { $0.dateCompleted > $1.dateCompleted })
+
+                // Reload the table view once data is fetched and sorted
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
+            }
+    }
+
     func fetchCheckInsForGoal(with goalId: String) {
         guard let currentUser = Auth.auth().currentUser else {
             // Handle the case where there's no logged-in user
@@ -169,31 +222,40 @@ extension CheckInDataViewController: UITableViewDataSource, UITableViewDelegate 
     }
     
     @objc func cellTapped(_ sender: UITapGestureRecognizer) {
-        guard let cell = sender.view as? UITableViewCell,
-              let indexPath = tableView.indexPath(for: cell) else { return }
-        
-        let checkIn = checkInData[indexPath.row]
-        
-        // Show action sheet for editing or deleting check-in
-        let alertController = UIAlertController(title: "Edit Check-In", message: nil, preferredStyle: .actionSheet)
-        
-        let toggleActionTitle = checkIn.isComplete ? "Mark as Incomplete" : "Mark as Completed"
-        let toggleAction = UIAlertAction(title: toggleActionTitle, style: .default) { _ in
-            // Toggle completion status
-            self.toggleCompletionStatus(for: checkIn)
+        if isViewer == false {
+            guard let cell = sender.view as? UITableViewCell,
+                  let indexPath = tableView.indexPath(for: cell) else { return }
+            
+            let checkIn = checkInData[indexPath.row]
+            
+            // Show action sheet for editing or deleting check-in
+            let alertController = UIAlertController(title: "Edit Check-In", message: nil, preferredStyle: .actionSheet)
+            
+            let toggleActionTitle = checkIn.isComplete ? "Mark as Incomplete" : "Mark as Completed"
+            let toggleAction = UIAlertAction(title: toggleActionTitle, style: .default) { _ in
+                // Toggle completion status
+                self.toggleCompletionStatus(for: checkIn)
+            }
+            alertController.addAction(toggleAction)
+            
+            let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { _ in
+                // Delete the check-in
+                self.deleteCheckIn(at: indexPath.row)
+            }
+            alertController.addAction(deleteAction)
+            
+            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+            alertController.addAction(cancelAction)
+            
+            // Configure popoverPresentationController for iPad
+            if let popoverPresentationController = alertController.popoverPresentationController {
+                popoverPresentationController.sourceView = cell
+                popoverPresentationController.sourceRect = cell.bounds
+                popoverPresentationController.permittedArrowDirections = [.up, .down]
+            }
+            
+            present(alertController, animated: true, completion: nil)
         }
-        alertController.addAction(toggleAction)
-        
-        let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { _ in
-            // Delete the check-in
-            self.deleteCheckIn(at: indexPath.row)
-        }
-        alertController.addAction(deleteAction)
-        
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        alertController.addAction(cancelAction)
-        
-        present(alertController, animated: true, completion: nil)
     }
 
     func toggleCompletionStatus(for checkIn: GoalCheckin) {
@@ -222,6 +284,7 @@ extension CheckInDataViewController: UITableViewDataSource, UITableViewDelegate 
                     // Reload data after update
                     self.loadCheckInData()
                     // Update success rate label
+                    self.recomputeAndUpdateSuccessRate(for: checkIn.goalId)
                     self.updateSuccessRateLabel(self.goal!.checkInSuccessRate)
                 }
             }
@@ -259,14 +322,56 @@ extension CheckInDataViewController: UITableViewDataSource, UITableViewDelegate 
                     self.checkInData.remove(at: index)
                     self.tableView.reloadData()
                     // Update success rate label
+                    self.recomputeAndUpdateSuccessRate(for: checkIn.goalId)
                     self.updateSuccessRateLabel(self.goal!.checkInSuccessRate)
                 }
             }
     }
+    func recomputeAndUpdateSuccessRate(for goalId: String) {
+        guard let currentUser = Auth.auth().currentUser else { return }
+        let db = Firestore.firestore()
+        
+        db.collection("users").document(currentUser.uid)
+            .collection("goals").document(goalId)
+            .collection("checkins").getDocuments { (snapshot, error) in
+                if let error = error {
+                    print("Error fetching check-ins for recomputing success rate:", error.localizedDescription)
+                    return
+                }
+                
+                guard let documents = snapshot?.documents else {
+                    print("No check-in documents found for recomputing success rate")
+                    return
+                }
+                
+                let checkIns = documents.compactMap { document -> GoalCheckin? in
+                    let data = document.data()
+                    guard let goalName = data["goalName"] as? String,
+                          let isComplete = data["isComplete"] as? Bool,
+                          let timestamp = data["dateCompleted"] as? Timestamp else {
+                        return nil
+                    }
+                    
+                    let dateCompleted = timestamp.dateValue()
+                    return GoalCheckin(documentID: document.documentID, goalId: goalId, goalName: goalName, isComplete: isComplete, dateCompleted: dateCompleted)
+                }
+                
+                // Compute the success rate
+                let completedCheckIns = checkIns.filter { $0.isComplete }.count
+                let successRate = Double(completedCheckIns) / Double(checkIns.count) * 100
+                
+                // Update the goal object and the UI
+                self.goal?.checkInSuccessRate = successRate
+                self.updateSuccessRateLabel(successRate)
+            }
+    }
+
     @objc func changeTitle() {
         navigationItem.rightBarButtonItem?.title = "New Title"
     }
     func updateSuccessRateLabel(_ successRate: Double) {
+        print("==========\(successRate)")
+
         let formattedSuccessRate = formatCheckInSuccessRate(successRate)
         if let containerView = navigationItem.rightBarButtonItem?.customView as? UIView,
            let successRateLabel = containerView.subviews.first as? UILabel {
@@ -333,194 +438,3 @@ class CheckInTableViewCell: UITableViewCell {
     }
 }
 
-
-/*
- //
- //  CheckInDataViewController.swift
- //  BeBrilliantInTheBasics
- //
- //  Created by Decoreyon Green on 4/5/24.
- //
-
- import UIKit
- import FirebaseFirestore
- import FirebaseAuth
-
- class CheckInDataViewController: UIViewController {
-     
-     var tableView: UITableView!
-     
-     var goal: GoalCloud?
-     var goalTitle: String?
-     var checkInData: [GoalCheckin] = []
-     
-     override func viewDidLoad() {
-         super.viewDidLoad()
-         
-         // Set up the table view
-         tableView = UITableView()
-         tableView.translatesAutoresizingMaskIntoConstraints = false
-         view.addSubview(tableView)
-         
-         // Set constraints for the table view
-         NSLayoutConstraint.activate([
-             tableView.topAnchor.constraint(equalTo: view.topAnchor),
-             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-         ])
-         
-         // Register table view cell
-         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "CheckInCell")
-         
-         // Set the delegate and data source
-         tableView.dataSource = self
-         tableView.delegate = self
-         
-         // Set the title to the goal title
-         self.title = goalTitle
-         
-         // Load check-in data
-         loadCheckInData()
-     }
-     
-     func loadCheckInData() {
-         guard let currentUser = Auth.auth().currentUser,
-               let goal = goal else {
-             // Handle the case where there's no logged-in user or goal is missing
-             return
-         }
-         
-         let db = Firestore.firestore()
-         db.collection("users").document(currentUser.uid)
-             .collection("goals").document(goal.documentID ?? "")
-             .collection("checkins").getDocuments { (snapshot, error) in
-                 if let error = error {
-                     print("Error fetching check-ins: \(error.localizedDescription)")
-                     return
-                 }
-                 
-                 guard let documents = snapshot?.documents else {
-                     print("No check-in documents found")
-                     return
-                 }
-                 
-                 self.checkInData = documents.compactMap { document in
-                     let data = document.data()
-                     guard let goalId = data["goalId"] as? String,
-                           let goalName = data["goalName"] as? String,
-                           let isComplete = data["isComplete"] as? Bool,
-                           let dateCompleted = data["dateCompleted"] as? Date else {
-                         print("Error parsing check-in document data")
-                         return nil
-                     }
-                     
-                     return GoalCheckin(documentID: document.documentID,
-                                        goalId: goalId,
-                                        goalName: goalName,
-                                        isComplete: isComplete,
-                                        dateCompleted: dateCompleted)
-                 }
-
-                 
-                 // Reload the table view once data is fetched
-                 DispatchQueue.main.async {
-                     self.tableView.reloadData()
-                 }
-             }
-     }
- }
-
- extension CheckInDataViewController: UITableViewDataSource, UITableViewDelegate {
-     
-     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-         return checkInData.count
-     }
-     
-     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-         let cell = tableView.dequeueReusableCell(withIdentifier: "CheckInCell", for: indexPath)
-         let checkIn = checkInData[indexPath.row]
-         
-         // Configure the label text with isComplete and date
-         let dateFormatter = DateFormatter()
-         dateFormatter.dateFormat = "M/d/yy h:mm a"
-         let dateString = dateFormatter.string(from: checkIn.dateCompleted)
-         let isCompleteText = checkIn.isComplete ? "Completed" : "Incomplete"
-         cell.textLabel?.text = "\(isCompleteText)\n\(dateString)"
-         
-         // Expand the cell size to accommodate the text
-         cell.textLabel?.numberOfLines = 0
-         cell.textLabel?.lineBreakMode = .byWordWrapping
-         
-         // Add tap gesture recognizer for cell
-         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(cellTapped(_:)))
-         cell.addGestureRecognizer(tapGesture)
-         
-         return cell
-     }
-     
-     @objc func cellTapped(_ sender: UITapGestureRecognizer) {
-         guard let cell = sender.view as? UITableViewCell,
-               let indexPath = tableView.indexPath(for: cell) else { return }
-         
-         let checkIn = checkInData[indexPath.row]
-         let documentId = checkIn.documentID ?? ""
-         
-         // Show action sheet for editing or deleting check-in
-         let alertController = UIAlertController(title: "Edit Check-In", message: nil, preferredStyle: .actionSheet)
-         
-         let toggleActionTitle = checkIn.isComplete ? "Mark as Incomplete" : "Mark as Completed"
-         let toggleAction = UIAlertAction(title: toggleActionTitle, style: .default) { _ in
-             // Toggle completion status
-             self.toggleCompletionStatus(for: checkIn, documentId: documentId)
-         }
-         alertController.addAction(toggleAction)
-         
-         let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { _ in
-             // Delete the check-in
-             self.deleteCheckIn(at: indexPath.row, documentId: documentId)
-         }
-         alertController.addAction(deleteAction)
-         
-         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-         alertController.addAction(cancelAction)
-         
-         present(alertController, animated: true, completion: nil)
-     }
-     
-     func toggleCompletionStatus(for checkIn: GoalCheckin, documentId: String) {
-         guard let currentUser = Auth.auth().currentUser else { return }
-         let db = Firestore.firestore()
-         db.collection("users").document(currentUser.uid)
-             .collection("goals").document(checkIn.goalId)
-             .collection("checkins").document(documentId)
-             .updateData(["isComplete": !checkIn.isComplete]) { error in
-                 if let error = error {
-                     print("Error updating completion status: \(error.localizedDescription)")
-                 } else {
-                     print("Completion status updated successfully")
-                     // Reload data after update
-                     self.loadCheckInData()
-                 }
-             }
-     }
-     
-     func deleteCheckIn(at index: Int, documentId: String) {
-         guard let currentUser = Auth.auth().currentUser else { return }
-         let db = Firestore.firestore()
-         db.collection("users").document(currentUser.uid)
-             .collection("goals").document(checkInData[index].goalId)
-             .collection("checkins").document(documentId)
-             .delete { error in
-                 if let error = error {
-                     print("Error deleting check-in: \(error.localizedDescription)")
-                 } else {
-                     print("Check-in deleted successfully")
-                     // Remove the check-in from the array and reload data
-                     self.checkInData.remove(at: index)
-                     self.tableView.reloadData()
-                 }
-             }
-     }
- }
-*/

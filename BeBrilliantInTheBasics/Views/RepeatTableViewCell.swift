@@ -13,7 +13,8 @@ class RepeatTableViewCell: UITableViewCell {
     @IBOutlet weak var viewerImage: UIImageView!
     @IBOutlet weak var goalLabel: UILabel!
     @IBOutlet weak var bgView: UIView!
-    @IBOutlet weak var statusButton: UIButton!
+    @IBOutlet weak var bottomView: UIView!
+    @IBOutlet weak var viewerLabel: UILabel!
     
     var indexPath: IndexPath? // Store the indexPath
     var tapCount = 0
