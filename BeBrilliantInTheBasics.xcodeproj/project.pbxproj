@@ -10,6 +10,11 @@
 		3211B8242B65F21000B4701F /* TabViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3211B8232B65F20F00B4701F /* TabViewController.swift */; };
 		3211B8272B65F49A00B4701F /* PersonalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3211B8262B65F49A00B4701F /* PersonalViewController.swift */; };
 		3211B8292B65F4B200B4701F /* CheckInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3211B8282B65F4B200B4701F /* CheckInViewController.swift */; };
+		32198B4C2BFECCF400B93CBB /* ViewUsersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32198B4B2BFECCF400B93CBB /* ViewUsersViewController.swift */; };
+		322C8BA02BF5985500157156 /* AddViewersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 322C8B9F2BF5985500157156 /* AddViewersViewController.swift */; };
+		326B2EC42C10E859006748FE /* NotificationsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326B2EC32C10E859006748FE /* NotificationsViewController.swift */; };
+		326B2EC62C111F9E006748FE /* ManualCheckInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326B2EC52C111F9E006748FE /* ManualCheckInViewController.swift */; };
+		326B2EC82C137366006748FE /* AccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326B2EC72C137365006748FE /* AccountViewController.swift */; };
 		328DDF1B2B703B9100713EA7 /* RepeatTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 328DDF192B703B9100713EA7 /* RepeatTableViewCell.xib */; };
 		328DDF1D2B70621700713EA7 /* AddGoalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 328DDF1C2B70621700713EA7 /* AddGoalViewController.swift */; };
 		32A434D42B68177400003935 /* FirebaseData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A434D32B68177400003935 /* FirebaseData.swift */; };
@@ -54,6 +59,11 @@
 		3211B8232B65F20F00B4701F /* TabViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabViewController.swift; sourceTree = "<group>"; };
 		3211B8262B65F49A00B4701F /* PersonalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalViewController.swift; sourceTree = "<group>"; };
 		3211B8282B65F4B200B4701F /* CheckInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckInViewController.swift; sourceTree = "<group>"; };
+		32198B4B2BFECCF400B93CBB /* ViewUsersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewUsersViewController.swift; sourceTree = "<group>"; };
+		322C8B9F2BF5985500157156 /* AddViewersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddViewersViewController.swift; sourceTree = "<group>"; };
+		326B2EC32C10E859006748FE /* NotificationsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsViewController.swift; sourceTree = "<group>"; };
+		326B2EC52C111F9E006748FE /* ManualCheckInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManualCheckInViewController.swift; sourceTree = "<group>"; };
+		326B2EC72C137365006748FE /* AccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountViewController.swift; sourceTree = "<group>"; };
 		328DDF192B703B9100713EA7 /* RepeatTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RepeatTableViewCell.xib; sourceTree = "<group>"; };
 		328DDF1C2B70621700713EA7 /* AddGoalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGoalViewController.swift; sourceTree = "<group>"; };
 		32A434D32B68177400003935 /* FirebaseData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseData.swift; sourceTree = "<group>"; };
@@ -118,11 +128,29 @@
 				32AE311B2BB0D79300E5BC06 /* Settings */,
 				328DDF192B703B9100713EA7 /* RepeatTableViewCell.xib */,
 				32A434D72B6BEF5E00003935 /* RepeatTableViewCell.swift */,
-				328DDF1C2B70621700713EA7 /* AddGoalViewController.swift */,
-				32E788442B96562C00458D07 /* FindUsersViewController.swift */,
+				322C8B9E2BF5981F00157156 /* AddEditGoals */,
+				32198B4A2BFECC5B00B93CBB /* ManageViewers */,
 				32AE31192BA78B4B00E5BC06 /* TestViewController.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		32198B4A2BFECC5B00B93CBB /* ManageViewers */ = {
+			isa = PBXGroup;
+			children = (
+				32E788442B96562C00458D07 /* FindUsersViewController.swift */,
+				32198B4B2BFECCF400B93CBB /* ViewUsersViewController.swift */,
+			);
+			path = ManageViewers;
+			sourceTree = "<group>";
+		};
+		322C8B9E2BF5981F00157156 /* AddEditGoals */ = {
+			isa = PBXGroup;
+			children = (
+				328DDF1C2B70621700713EA7 /* AddGoalViewController.swift */,
+				322C8B9F2BF5985500157156 /* AddViewersViewController.swift */,
+			);
+			path = AddEditGoals;
 			sourceTree = "<group>";
 		};
 		32A580E42B59B35F009C7522 = {
@@ -174,6 +202,8 @@
 			children = (
 				32AE311C2BB0D7B800E5BC06 /* SettingsViewController.swift */,
 				32AE311E2BB0DE0B00E5BC06 /* SettingsTableViewCell.swift */,
+				326B2EC72C137365006748FE /* AccountViewController.swift */,
+				326B2EC32C10E859006748FE /* NotificationsViewController.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -181,8 +211,8 @@
 		32BA5E412B71876A004F2334 /* Professional */ = {
 			isa = PBXGroup;
 			children = (
-				32A580F42B59B35F009C7522 /* ProfessionalViewController.swift */,
 				32D32E0A2B7489BD007F1E95 /* ProfessionalPageViewController.swift */,
+				32A580F42B59B35F009C7522 /* ProfessionalViewController.swift */,
 				32D32E112B748A6D007F1E95 /* ProfessionalIndividualViewController.swift */,
 				32D32E132B748A87007F1E95 /* ProfessionalGroupViewController.swift */,
 			);
@@ -209,6 +239,7 @@
 				32D32E0F2B748A3C007F1E95 /* CheckInGroupViewController.swift */,
 				32AE31172B9F5E3300E5BC06 /* DateHeaderTableViewCell.swift */,
 				32CE4AE12BC0ECC5004D0BC3 /* CheckInDataViewController.swift */,
+				326B2EC52C111F9E006748FE /* ManualCheckInViewController.swift */,
 			);
 			path = CheckIn;
 			sourceTree = "<group>";
@@ -306,14 +337,18 @@
 				32A434D42B68177400003935 /* FirebaseData.swift in Sources */,
 				32D32E0B2B7489BD007F1E95 /* ProfessionalPageViewController.swift in Sources */,
 				32A434DA2B6BF06100003935 /* Extensions.swift in Sources */,
+				326B2EC82C137366006748FE /* AccountViewController.swift in Sources */,
 				32D32E092B748983007F1E95 /* CheckInPageViewController.swift in Sources */,
 				32BA5E452B7187F7004F2334 /* PersonalIndividualViewController.swift in Sources */,
 				32D32E102B748A3C007F1E95 /* CheckInGroupViewController.swift in Sources */,
 				32AE311A2BA78B4B00E5BC06 /* TestViewController.swift in Sources */,
 				3211B8242B65F21000B4701F /* TabViewController.swift in Sources */,
+				32198B4C2BFECCF400B93CBB /* ViewUsersViewController.swift in Sources */,
 				32A434D82B6BEF5E00003935 /* RepeatTableViewCell.swift in Sources */,
 				3211B8272B65F49A00B4701F /* PersonalViewController.swift in Sources */,
 				32A580F52B59B35F009C7522 /* ProfessionalViewController.swift in Sources */,
+				326B2EC62C111F9E006748FE /* ManualCheckInViewController.swift in Sources */,
+				322C8BA02BF5985500157156 /* AddViewersViewController.swift in Sources */,
 				32E788452B96562C00458D07 /* FindUsersViewController.swift in Sources */,
 				32E788042B8CF6A300458D07 /* SignInViewController.swift in Sources */,
 				32A580F12B59B35F009C7522 /* AppDelegate.swift in Sources */,
@@ -327,6 +362,7 @@
 				32BA5E402B71776F004F2334 /* PersonalPageViewController.swift in Sources */,
 				32A580F32B59B35F009C7522 /* SceneDelegate.swift in Sources */,
 				32CE4AE22BC0ECC5004D0BC3 /* CheckInDataViewController.swift in Sources */,
+				326B2EC42C10E859006748FE /* NotificationsViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -478,7 +514,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = FU5874BN54;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BeBrilliantInTheBasics/Info.plist;
@@ -493,7 +529,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.02;
+				MARKETING_VERSION = 1.05;
 				PRODUCT_BUNDLE_IDENTIFIER = com.Decoreyon.BeBrilliantInTheBasics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -513,7 +549,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = FU5874BN54;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BeBrilliantInTheBasics/Info.plist;
@@ -528,7 +564,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.02;
+				MARKETING_VERSION = 1.05;
 				PRODUCT_BUNDLE_IDENTIFIER = com.Decoreyon.BeBrilliantInTheBasics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

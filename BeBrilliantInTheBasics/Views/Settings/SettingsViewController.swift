@@ -72,9 +72,13 @@ class SettingsViewController: UIViewController {
         navigationController?.pushViewController(searchVC!, animated: true)
     }
     func didTapUserList(){
+        let viewUsersVC = ViewUsersViewController()
+        self.navigationController?.pushViewController(viewUsersVC, animated: true)
         print("UserList")
     }
     func didTapNotifications(){
+        let notificationsVC = NotificationsViewController()
+        self.navigationController?.pushViewController(notificationsVC, animated: true)
         print("Notifications")
     }
     func didTapHelp(){

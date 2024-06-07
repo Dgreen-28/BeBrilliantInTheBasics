@@ -16,29 +16,46 @@ struct GoalCheckin {
     let isComplete: Bool
     let dateCompleted: Date
     
-//    init(documentID: String?, goalId: String, goalName: String, isComplete: Bool, dateCompleted: Date) {
-//        self.documentID = documentID
-//        self.goalId = goalId
-//        self.goalName = goalName
-//        self.isComplete = isComplete
-//        self.dateCompleted = dateCompleted
-//    }
-}
 
+}
 struct GoalCloud {
     var documentID: String? // Add documentID property
     let name: String
     let startDate: Date
     let endDate: Date
     let goalType: String
-    let checkInSuccessRate: Double
+    var checkInSuccessRate: Double
     let checkInSchedule: String
     let checkInQuestion: String
     var isComplete: Bool? // Optional, as it can be nil initially
     var checkInHistory: [GoalCheckin] // Array to store check-in history
+    var viewers: [String] // Array to store friend IDs who are viewers of the goal
+    var ownerName: String? // Add this property
+    var ownerUID: String? // New property to hold the owner's UID
 }
 
-func addGoalToFirebase(goal: inout GoalCloud, userId: String, completion: @escaping (Error?) -> Void) {
+struct Friend {
+    let email: String
+    let uid: String
+    let username: String
+    var isViewer: Bool
+}
+
+
+//struct GoalCloud {
+//    var documentID: String? // Add documentID property
+//    let name: String
+//    let startDate: Date
+//    let endDate: Date
+//    let goalType: String
+//    let checkInSuccessRate: Double
+//    let checkInSchedule: String
+//    let checkInQuestion: String
+//    var isComplete: Bool? // Optional, as it can be nil initially
+//    var checkInHistory: [GoalCheckin] // Array to store check-in history
+//}
+
+func addGoalToFirebase(goal: inout GoalCloud, userId: String, viewers: [String], completion: @escaping (Error?) -> Void) {
     let db = Firestore.firestore()
     var data: [String: Any] = [
         "name": goal.name,
@@ -47,7 +64,8 @@ func addGoalToFirebase(goal: inout GoalCloud, userId: String, completion: @escap
         "goalType": goal.goalType,
         "checkInSuccessRate": goal.checkInSuccessRate,
         "checkInSchedule": goal.checkInSchedule,
-        "checkInQuestion": goal.checkInQuestion
+        "checkInQuestion": goal.checkInQuestion,
+        "viewers": viewers // Add viewers to data
     ]
     if let isComplete = goal.isComplete {
         data["isComplete"] = isComplete
@@ -68,6 +86,7 @@ func addGoalToFirebase(goal: inout GoalCloud, userId: String, completion: @escap
         }
     }
 }
+
 
 
 func addCheckinToFirebase(goalId: String, goalName: String, isComplete: Bool, dateCompleted: Date, userId: String, completion: @escaping (Error?) -> Void) {

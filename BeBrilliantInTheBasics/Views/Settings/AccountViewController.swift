@@ -11,6 +11,8 @@ class AccountViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .white
+        self.title = "Account Information"
 
         // Do any additional setup after loading the view.
     }

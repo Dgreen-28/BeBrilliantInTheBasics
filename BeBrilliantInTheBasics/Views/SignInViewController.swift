@@ -4,7 +4,9 @@
 //
 //  Created by Decoreyon Green on 2/26/24.
 //
+
 import UIKit
+import FirebaseAuth
 
 class SignInViewController: UIViewController, UITextFieldDelegate {
 
@@ -18,8 +20,17 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
         setupLoginButton()
         setupTextFields()
         setupCreateAccountButton()
+        setupForgotPasswordButton()
+        
         emailTextField.delegate = self
         passwordTextField.delegate = self
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tapGesture)
+    }
+
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
     }
     
     private func setupBackground() {
@@ -33,6 +44,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
         // Apply red theme to the view
         view.backgroundColor = UIColor.red
     }
+    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         // Dismiss the keyboard when return key is pressed
         textField.resignFirstResponder()
@@ -59,52 +71,6 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
         ])
     }
     
-    @objc private func loginButtonTapped() {
-        // Perform validation on email and password fields
-        guard let email = emailTextField.text, !email.isEmpty,
-              let password = passwordTextField.text, !password.isEmpty else {
-            // Show error message to the user if fields are empty
-            return
-        }
-
-        // Call the createAccount function from FirebaseSignIn
-        FirebaseSignIn.createAccount(email: email, password: password) { error in
-            if let error = error {
-                // Handle error (e.g., show error message to user)
-                print("Error creating account: \(error.localizedDescription)")
-            } else {
-                // Account creation successful, proceed with next steps (e.g., navigate to next screen)
-                print("Account created successfully")
-                self.dismiss(animated: true, completion: nil)
-            }
-        }
-//        // Perform validation on email and password fields
-//        guard let email = emailTextField.text, !email.isEmpty,
-//              let password = passwordTextField.text, !password.isEmpty else {
-//            // Show error message to the user if fields are empty
-//            return
-//        }
-//
-//        // Call the createAccount function
-//        createAccount(email: email, password: password) { error in
-//            if let error = error {
-//                // Handle error (e.g., show error message to user)
-//                print("Error creating account: \(error.localizedDescription)")
-//                print(self.emailTextField.text!)
-//                print(self.passwordTextField.text!)
-//            } else {
-//                // Account creation successful, proceed with next steps (e.g., navigate to next screen)
-//                print("Account created successfully")
-//                self.dismiss(animated: true, completion: nil)
-//
-//            }
-//        }
-//        
-        //TODO: Remove
-//        dismiss(animated: true, completion: nil)
-
-    }
-    
     private func setupTextFields() {
         // Add email text field
         emailTextField = UITextField()
@@ -114,6 +80,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
         let eleftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: emailTextField.frame.height)) // left padding to the textfield
         emailTextField.leftView = eleftView
         emailTextField.leftViewMode = .always
+        emailTextField.autocapitalizationType = .none // Disable autocapitalization
         view.addSubview(emailTextField)
         
         // Add password text field
@@ -124,6 +91,8 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
         let pleftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: passwordTextField.frame.height)) // left padding to the textfield
         passwordTextField.leftView = pleftView
         passwordTextField.leftViewMode = .always
+        passwordTextField.autocapitalizationType = .none // Disable autocapitalization
+        passwordTextField.isSecureTextEntry = true // Hide characters
         view.addSubview(passwordTextField)
         
         // Position the text fields
@@ -148,6 +117,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
         createAccountButton.setTitleColor(.white, for: .normal)
         createAccountButton.backgroundColor = .black
         createAccountButton.layer.cornerRadius = 8
+        createAccountButton.addTarget(self, action: #selector(createAccountTapped), for: .touchUpInside)
         view.addSubview(createAccountButton)
         
         // Position the create account button
@@ -158,5 +128,96 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
             createAccountButton.widthAnchor.constraint(equalToConstant: 200),
             createAccountButton.heightAnchor.constraint(equalToConstant: 50)
         ])
+    }
+    
+    private func setupForgotPasswordButton() {
+        // Add forgot password button
+        let forgotPasswordButton = UIButton(type: .system)
+        forgotPasswordButton.setTitle("Forgot Password?", for: .normal)
+        forgotPasswordButton.setTitleColor(.black, for: .normal)
+        forgotPasswordButton.backgroundColor = .clear
+        forgotPasswordButton.addTarget(self, action: #selector(forgotPasswordTapped), for: .touchUpInside)
+        view.addSubview(forgotPasswordButton)
+        
+        // Position the forgot password button
+        forgotPasswordButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            forgotPasswordButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            forgotPasswordButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 10)
+        ])
+    }
+    
+    @objc private func createAccountTapped(){
+        let signUpVC = SignUpViewController() // Assuming SignUpViewController is programmatically created
+        let navController = UINavigationController(rootViewController: signUpVC)
+        signUpVC.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelSignUp))
+        navController.modalPresentationStyle = .fullScreen
+        present(navController, animated: true, completion: nil)
+        print("Create account tapped")
+    }
+    
+    @objc private func cancelSignUp() {
+        dismiss(animated: true, completion: nil)
+    }
+    
+    @objc private func loginButtonTapped() {
+        // Perform validation on email and password fields
+        guard let email = emailTextField.text, !email.isEmpty,
+              let password = passwordTextField.text, !password.isEmpty else {
+            // Show error message to the user if fields are empty
+            presentAlert(title: "Error", message: "Email and password fields cannot be empty.")
+            return
+        }
+
+        // Call the loginUser function from FirebaseSignIn
+        let firebaseSignIn = FirebaseSignIn()
+        firebaseSignIn.loginUser(username: nil, email: email, password: password) { success in
+            if success {
+                // Login successful, proceed with next steps (e.g., navigate to next screen)
+                print("Login successful")
+                self.dismiss(animated: true, completion: nil)
+            } else {
+                // Login failed, handle error (e.g., show error message to user)
+                print("Login failed")
+                self.presentAlert(title: "Error", message: "Wrong Email or Password")
+            }
+        }
+    }
+    
+    @objc private func forgotPasswordTapped() {
+        let alertController = UIAlertController(title: "Forgot Password", message: "Enter your email to reset your password.", preferredStyle: .alert)
+        alertController.addTextField { textField in
+            textField.placeholder = "Email"
+            textField.keyboardType = .emailAddress
+        }
+        
+        let sendAction = UIAlertAction(title: "Send", style: .default) { _ in
+            guard let email = alertController.textFields?.first?.text, !email.isEmpty else {
+                self.presentAlert(title: "Error", message: "Email field cannot be empty.")
+                return
+            }
+            
+            Auth.auth().sendPasswordReset(withEmail: email) { error in
+                if let error = error {
+                    self.presentAlert(title: "Error", message: error.localizedDescription)
+                } else {
+                    self.presentAlert(title: "Success", message: "Password reset email sent.")
+                }
+            }
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        
+        alertController.addAction(sendAction)
+        alertController.addAction(cancelAction)
+        
+        present(alertController, animated: true, completion: nil)
+    }
+    
+    private func presentAlert(title: String, message: String) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+        alertController.addAction(okAction)
+        self.present(alertController, animated: true, completion: nil)
     }
 }
