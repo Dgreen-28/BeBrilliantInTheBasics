@@ -35,12 +35,35 @@ class ManualCheckInViewController: UIViewController {
         
         self.title = goalTitle
         self.view.backgroundColor = .white
+        // Add the info button
+        let infoButton = UIButton(type: .system)
+        infoButton.translatesAutoresizingMaskIntoConstraints = false
+        infoButton.tintColor = .darkGray
+        infoButton.setImage(UIImage(systemName: "info.circle"), for: .normal)
+        infoButton.addTarget(self, action: #selector(infoButtonTapped), for: .touchUpInside)
+        view.addSubview(infoButton)
+        
+        // Set constraints for the info button
+        NSLayoutConstraint.activate([
+            infoButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 5),
+            infoButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -15),
+            infoButton.widthAnchor.constraint(equalToConstant: 35),
+            infoButton.heightAnchor.constraint(equalToConstant: 35)
+        ])
         
         setupDatePicker()
         setupCheckinToggleButton()
         setupSubmitButton()
     }
     
+    @objc func infoButtonTapped() {
+        let infopageVC = InfoPageViewController()
+        infopageVC.infoText = "manual checkIn Page" // Pass the appropriate case identifier
+        infopageVC.modalPresentationStyle = .overCurrentContext
+        infopageVC.modalTransitionStyle = .crossDissolve
+        present(infopageVC, animated: true, completion: nil)
+    }
+
     private func setupDatePicker() {
         datePicker.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(datePicker)
@@ -48,8 +71,8 @@ class ManualCheckInViewController: UIViewController {
         NSLayoutConstraint.activate([
             datePicker.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             datePicker.topAnchor.constraint(equalTo: view.topAnchor, constant: view.bounds.height / 10 + 60),
-            datePicker.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            datePicker.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+            datePicker.widthAnchor.constraint(equalToConstant: 385),
+            datePicker.heightAnchor.constraint(equalToConstant: 400)
         ])
     }
     

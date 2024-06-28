@@ -4,7 +4,6 @@
 //
 //  Created by Decoreyon Green on 2/26/24.
 //
-
 import UIKit
 import FirebaseAuth
 
@@ -13,12 +12,15 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     // Declare email and password text fields as properties
     private var emailTextField: UITextField!
     private var passwordTextField: UITextField!
+    private var loginButton: UIButton!
+    private var createAccountButton: UIButton!
+    private var forgotPasswordButton: UIButton!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupBackground()
-        setupLoginButton()
         setupTextFields()
+        setupLoginButton()
         setupCreateAccountButton()
         setupForgotPasswordButton()
         
@@ -34,8 +36,17 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     }
     
     private func setupBackground() {
+        // Determine the background image based on device type
+        let backgroundImageName: String
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            backgroundImageName = "AddGoalsBG_iPad"
+        } else if UIDevice.current.userInterfaceIdiom == .phone {
+            backgroundImageName = "Add Goals"
+        } else {
+            backgroundImageName = "Add Goals"
+        }
         // Add background image view covering the entire view
-        let backgroundImageView = UIImageView(image: UIImage(named: "Add Goals"))
+        let backgroundImageView = UIImageView(image: UIImage(named: backgroundImageName))
         backgroundImageView.contentMode = .scaleToFill
         backgroundImageView.frame = view.bounds
         view.addSubview(backgroundImageView)
@@ -53,7 +64,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     
     private func setupLoginButton() {
         // Add login button
-        let loginButton = UIButton(type: .system)
+        loginButton = UIButton(type: .system)
         loginButton.setTitle("Login", for: .normal)
         loginButton.setTitleColor(.white, for: .normal)
         loginButton.backgroundColor = .black
@@ -63,12 +74,6 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
         
         // Position the login button
         loginButton.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            loginButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            loginButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
-            loginButton.widthAnchor.constraint(equalToConstant: 200),
-            loginButton.heightAnchor.constraint(equalToConstant: 50)
-        ])
     }
     
     private func setupTextFields() {
@@ -98,21 +103,11 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
         // Position the text fields
         emailTextField.translatesAutoresizingMaskIntoConstraints = false
         passwordTextField.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            emailTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 100),
-            emailTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            emailTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            emailTextField.heightAnchor.constraint(equalToConstant: 50),
-            passwordTextField.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 20),
-            passwordTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            passwordTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            passwordTextField.heightAnchor.constraint(equalToConstant: 50)
-        ])
     }
     
     private func setupCreateAccountButton() {
         // Add create account button
-        let createAccountButton = UIButton(type: .system)
+        createAccountButton = UIButton(type: .system)
         createAccountButton.setTitle("Create Account", for: .normal)
         createAccountButton.setTitleColor(.white, for: .normal)
         createAccountButton.backgroundColor = .black
@@ -122,17 +117,11 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
         
         // Position the create account button
         createAccountButton.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            createAccountButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            createAccountButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 300),
-            createAccountButton.widthAnchor.constraint(equalToConstant: 200),
-            createAccountButton.heightAnchor.constraint(equalToConstant: 50)
-        ])
     }
     
     private func setupForgotPasswordButton() {
         // Add forgot password button
-        let forgotPasswordButton = UIButton(type: .system)
+        forgotPasswordButton = UIButton(type: .system)
         forgotPasswordButton.setTitle("Forgot Password?", for: .normal)
         forgotPasswordButton.setTitleColor(.black, for: .normal)
         forgotPasswordButton.backgroundColor = .clear
@@ -141,13 +130,43 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
         
         // Position the forgot password button
         forgotPasswordButton.translatesAutoresizingMaskIntoConstraints = false
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        // Calculate the new center for emailTextField
+        let horizontalCenterY = view.bounds.height / 2
+        let emailTextFieldCenterY = horizontalCenterY - 100
+        
         NSLayoutConstraint.activate([
+            emailTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            emailTextField.centerYAnchor.constraint(equalTo: view.topAnchor, constant: emailTextFieldCenterY),
+            emailTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            emailTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            emailTextField.heightAnchor.constraint(equalToConstant: 50),
+            
+            passwordTextField.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 20),
+            passwordTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            passwordTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            passwordTextField.heightAnchor.constraint(equalToConstant: 50),
+            
+            forgotPasswordButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 10),
             forgotPasswordButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            forgotPasswordButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 10)
+            
+            createAccountButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            createAccountButton.topAnchor.constraint(equalTo: forgotPasswordButton.bottomAnchor, constant: 10),
+            createAccountButton.widthAnchor.constraint(equalToConstant: 200),
+            createAccountButton.heightAnchor.constraint(equalToConstant: 50),
+            
+            loginButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loginButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            loginButton.widthAnchor.constraint(equalToConstant: 200),
+            loginButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     
-    @objc private func createAccountTapped(){
+    @objc private func createAccountTapped() {
         let signUpVC = SignUpViewController() // Assuming SignUpViewController is programmatically created
         let navController = UINavigationController(rootViewController: signUpVC)
         signUpVC.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelSignUp))

@@ -78,8 +78,9 @@ class ViewUsersViewController: UIViewController, UITableViewDataSource, UITableV
                     self.friends.append(friend)
                 }
             }
-
             dispatchGroup.notify(queue: .main) {
+                self.friends.sort { $0.username < $1.username }
+//            dispatchGroup.notify(queue: .main) {
                 self.tableView.reloadData()
             }
         }

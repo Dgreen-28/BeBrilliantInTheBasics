@@ -93,7 +93,14 @@ class CheckInIndividualViewController: UIViewController {
         let checkInSuccessRate = data["checkInSuccessRate"] as? Double ?? 0.0
         let checkInSchedule = data["checkInSchedule"] as? String ?? ""
         let checkInQuestion = data["checkInQuestion"] as? String ?? ""
-        let isComplete = data["isComplete"] as? Bool
+        let isComplete: String
+
+        // Convert boolean to string if needed
+        if let isCompleteBool = data["isComplete"] as? Bool {
+            isComplete = isCompleteBool ? "true" : "false"
+        } else {
+            isComplete = data["isComplete"] as? String ?? ""
+        }
         
         var checkInHistory: [GoalCheckin] = []
         
@@ -115,7 +122,6 @@ class CheckInIndividualViewController: UIViewController {
                     let checkin = GoalCheckin(documentID: checkinDoc.documentID, goalId: goalId, goalName: goalName, isComplete: isComplete, dateCompleted: dateCompleted)
                     checkInHistory.append(checkin)
                 }
-                
                 let goal = GoalCloud(name: name, startDate: startDate, endDate: endDate, goalType: goalType, checkInSuccessRate: checkInSuccessRate, checkInSchedule: checkInSchedule, checkInQuestion: checkInQuestion, isComplete: isComplete, checkInHistory: checkInHistory, viewers: [])
 
                 // Filter the goals based on startDate
@@ -226,6 +232,12 @@ class CheckInIndividualViewController: UIViewController {
                 return false // Return false if there is a check-in for the selected date
             }
         }
+        if goal.isComplete == "true" || goal.isComplete == "false" {
+            return false
+        }
+        if goal.startDate > Date() {
+            return false // Return false if the goal's start date is after today's date
+        }
         
         // Check if the goal's check-in schedule matches the selected date
         switch goal.checkInSchedule {
@@ -265,18 +277,14 @@ extension CheckInIndividualViewController: UITableViewDelegate, UITableViewDataS
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // Add one more row for the date header and one more row for the "Submit Goal" button
-        return checkInGoals.count + 2
+//        return checkInGoals.count + 2
+        return checkInGoals.count + 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         print("Configuring cell at indexPath: \(indexPath)")
         
-        if indexPath.row == 0 { // Date header cell
-            let cell = DateHeaderTableViewCell(style: .default, reuseIdentifier: "dateHeaderCell")
-            cell.configure(with: currentDate)
-            cell.delegate = self
-            return cell
-        } else if indexPath.row == 1 { // Submit goal button cell
+        if indexPath.row == 0 { // Submit goal button cell
             let cell = UITableViewCell(style: .default, reuseIdentifier: "submitCell")
             cell.textLabel?.text = "Submit Goals"
             cell.textLabel?.textColor = UIColor.white // Set text color to white
@@ -287,7 +295,7 @@ extension CheckInIndividualViewController: UITableViewDelegate, UITableViewDataS
             return cell
         } else { // Goal cell
             let cell = tableView.dequeueReusableCell(withIdentifier: "repeatCell", for: indexPath) as! RepeatTableViewCell
-            let goal = checkInGoals[indexPath.row - 2] // Adjusted index for goals array
+            let goal = checkInGoals[indexPath.row - 1] // Adjusted index for goals array
             cell.goalLabel.text = goal.checkInQuestion
             
             switch goal.goalType {
@@ -298,18 +306,56 @@ extension CheckInIndividualViewController: UITableViewDelegate, UITableViewDataS
             default:
                 cell.viewerImage.image = UIImage(named: "")
             }
-            
+            print("============\(goal.isComplete)")
             cell.statusImage.image = UIImage(named: "Checkbox_")
             cell.indexPath = indexPath // Store the indexPath
             return cell
         }
+
+//        if indexPath.row == 0 { // Date header cell
+//            let cell = DateHeaderTableViewCell(style: .default, reuseIdentifier: "dateHeaderCell")
+//            cell.configure(with: currentDate)
+//            cell.delegate = self
+//            return cell
+//        } else if indexPath.row == 1 { // Submit goal button cell
+//            let cell = UITableViewCell(style: .default, reuseIdentifier: "submitCell")
+//            cell.textLabel?.text = "Submit Goals"
+//            cell.textLabel?.textColor = UIColor.white // Set text color to white
+//            cell.textLabel?.textAlignment = .center // Center the text
+//            cell.backgroundColor = UIColor.red.withAlphaComponent(0.85) // Set background color to red with opacity 0.85
+//            cell.layer.cornerRadius = 8.0 // Set corner radius to 8.0
+//            cell.layer.masksToBounds = true // Clip subviews to bounds
+//            return cell
+//        } else { // Goal cell
+//            let cell = tableView.dequeueReusableCell(withIdentifier: "repeatCell", for: indexPath) as! RepeatTableViewCell
+//            let goal = checkInGoals[indexPath.row - 2] // Adjusted index for goals array
+//            cell.goalLabel.text = goal.checkInQuestion
+//            
+//            switch goal.goalType {
+//            case "Personal":
+//                cell.viewerImage.image = UIImage(named: "Pen")
+//            case "Professional":
+//                cell.viewerImage.image = UIImage(named: "briefcase")
+//            default:
+//                cell.viewerImage.image = UIImage(named: "")
+//            }
+//            print("============\(goal.isComplete)")
+//            cell.statusImage.image = UIImage(named: "Checkbox_")
+//            cell.indexPath = indexPath // Store the indexPath
+//            return cell
+//        }
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         // Set the height of the table view cells
-        if indexPath.row == 0 { // Date header cell
-            return 60
-        } else if indexPath.row == 1 { // Submit goal button cell
+//        if indexPath.row == 0 { // Date header cell
+//            return 60
+//        } else if indexPath.row == 1 { // Submit goal button cell
+//            return 44
+//        } else { // Goal cell
+//            return 90
+//        }
+        if indexPath.row == 0 { // Submit goal button cell
             return 44
         } else { // Goal cell
             return 90
@@ -317,9 +363,7 @@ extension CheckInIndividualViewController: UITableViewDelegate, UITableViewDataS
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if indexPath.row == 0 {
-            print("date cell tapped")
-        } else if indexPath.row == 1 { // Submit Goal button tapped
+        if indexPath.row == 0 { // Submit Goal button tapped
             print("Submit Goals button tapped")
             submitGoals()
         } else {
@@ -341,8 +385,31 @@ extension CheckInIndividualViewController: UITableViewDelegate, UITableViewDataS
             }
             tableView.deselectRow(at: indexPath, animated: true)
         }
+//        if indexPath.row == 0 {
+//            print("date cell tapped")
+//        } else if indexPath.row == 1 { // Submit Goal button tapped
+//            print("Submit Goals button tapped")
+//            submitGoals()
+//        } else {
+//            print("Status button tapped for indexPath: \(indexPath)")
+//            if let cell = tableView.cellForRow(at: indexPath) as? RepeatTableViewCell {
+//                cell.tapCount += 1
+//                print("Tap count for cell: \(cell.tapCount)")
+//                switch cell.tapCount % 3 {
+//                case 0:
+//                    cell.statusImage.image = UIImage(named: "Checkbox_")
+//                case 1:
+//                    cell.statusImage.image = UIImage(named: "Checkbox_A")
+//                case 2:
+//                    cell.statusImage.image = UIImage(named: "Checkbox_B")
+//                default:
+//                    break
+//                }
+//                print(cell.statusImage.image?.description ?? "")
+//            }
+//            tableView.deselectRow(at: indexPath, animated: true)
+//        }
     }
-
     func submitGoals() {
         guard let currentUser = currentUser else {
             print("Error: Current user is nil.")
@@ -353,14 +420,14 @@ extension CheckInIndividualViewController: UITableViewDelegate, UITableViewDataS
         var goalsProcessed = 0
         let totalGoals = checkInGoals.count
 
-        for index in 2..<tableView.numberOfRows(inSection: 0) {
+        for index in 1..<tableView.numberOfRows(inSection: 0) {
             if let cell = tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? RepeatTableViewCell,
                let imageDescription = cell.statusImage.image?.description {
                 if imageDescription.contains("Checkbox_A") || imageDescription.contains("Checkbox_B") {
                     var goalCheckins: [GoalCheckin] = []
                     let goalStatusBox = imageDescription.contains("Checkbox_A")
                     db.collection("users").document(currentUser.uid).collection("goals")
-                        .whereField("name", isEqualTo: checkInGoals[index - 2].name)
+                        .whereField("name", isEqualTo: checkInGoals[index - 1].name)
                         .getDocuments { [self] (querySnapshot, error) in
                             if let error = error {
                                 print("Error fetching user goals: \(error.localizedDescription)")
@@ -371,7 +438,7 @@ extension CheckInIndividualViewController: UITableViewDelegate, UITableViewDataS
                                 }
                                 for document in documents {
                                     let goalId = document.documentID
-                                    goalCheckins.append(GoalCheckin(documentID: nil, goalId: goalId, goalName: checkInGoals[index - 2].name, isComplete: goalStatusBox, dateCompleted: Date()))
+                                    goalCheckins.append(GoalCheckin(documentID: nil, goalId: goalId, goalName: checkInGoals[index - 1].name, isComplete: goalStatusBox, dateCompleted: Date()))
                                 }
                                 for checkin in goalCheckins {
                                     addCheckinToFirebase(goalId: checkin.goalId, goalName: checkin.goalName, isComplete: checkin.isComplete, dateCompleted: checkin.dateCompleted, userId: currentUser.uid) { error in
@@ -431,3 +498,65 @@ extension CheckInIndividualViewController: DateHeaderTableViewCellDelegate {
         }
     }
 }
+/*    func submitGoals() {
+ guard let currentUser = currentUser else {
+     print("Error: Current user is nil.")
+     return
+ }
+
+ let db = Firestore.firestore()
+ var goalsProcessed = 0
+ let totalGoals = checkInGoals.count
+
+ for index in 2..<tableView.numberOfRows(inSection: 0) {
+     if let cell = tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? RepeatTableViewCell,
+        let imageDescription = cell.statusImage.image?.description {
+         if imageDescription.contains("Checkbox_A") || imageDescription.contains("Checkbox_B") {
+             var goalCheckins: [GoalCheckin] = []
+             let goalStatusBox = imageDescription.contains("Checkbox_A")
+             db.collection("users").document(currentUser.uid).collection("goals")
+                 .whereField("name", isEqualTo: checkInGoals[index - 2].name)
+                 .getDocuments { [self] (querySnapshot, error) in
+                     if let error = error {
+                         print("Error fetching user goals: \(error.localizedDescription)")
+                     } else {
+                         guard let documents = querySnapshot?.documents else {
+                             print("No documents found in the 'goals' collection")
+                             return
+                         }
+                         for document in documents {
+                             let goalId = document.documentID
+                             goalCheckins.append(GoalCheckin(documentID: nil, goalId: goalId, goalName: checkInGoals[index - 2].name, isComplete: goalStatusBox, dateCompleted: Date()))
+                         }
+                         for checkin in goalCheckins {
+                             addCheckinToFirebase(goalId: checkin.goalId, goalName: checkin.goalName, isComplete: checkin.isComplete, dateCompleted: checkin.dateCompleted, userId: currentUser.uid) { error in
+                                 if let error = error {
+                                     print("Error adding check-in to Firebase: \(error.localizedDescription)")
+                                 } else {
+                                     print("Check-in added to Firebase successfully")
+                                     FirebaseManager.shared.updateGoals(currentUser: currentUser) { error in
+                                         if let error = error {
+                                             print("Error updating goals: \(error.localizedDescription)")
+                                         } else {
+                                             print("Goals updated successfully!")
+                                             goalsProcessed += 1
+                                             if goalsProcessed == totalGoals {
+                                                 self.loadCheckInGoals(for: self.currentDate)
+                                             }
+                                         }
+                                     }
+                                 }
+                             }
+                         }
+                     }
+                 }
+         } else {
+             goalsProcessed += 1
+             if goalsProcessed == totalGoals {
+                 self.loadCheckInGoals(for: self.currentDate)
+             }
+         }
+     }
+ }
+}
+*/

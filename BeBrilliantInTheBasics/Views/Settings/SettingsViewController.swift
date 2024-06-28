@@ -64,6 +64,8 @@ class SettingsViewController: UIViewController {
         data.append(section)
     }
     func didTapAccountInfo(){
+        let accountInfoVC = AccountViewController()
+        self.navigationController?.pushViewController(accountInfoVC, animated: true)
         print("Account info")
     }
     func didTapSearch(){
@@ -84,10 +86,17 @@ class SettingsViewController: UIViewController {
     func didTapHelp(){
         print("Help!")
     }
-    func didTapTerms(){
+    func didTapTerms() {
+        if let url = URL(string: "https://doc-hosting.flycricket.io/bebrilliantinthebasics-terms-of-use/8cdb86cd-f9a6-41b5-95d7-866f14fee6fd/terms") {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        }
         print("Terms")
     }
+
     func didTapPrivacy(){
+        if let url = URL(string: "https://doc-hosting.flycricket.io/bebrilliantinthebasics-privacy-policy/accf77d3-5faf-4f13-ae8f-0f102738a4aa/privacy") {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        }
         print("privacy")
     }
     func didTapLogOut() {

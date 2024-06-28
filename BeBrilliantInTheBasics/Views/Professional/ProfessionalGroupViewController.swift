@@ -76,8 +76,14 @@ class ProfessionalGroupViewController: UIViewController {
                             let checkInSuccessRate = data["checkInSuccessRate"] as? Double ?? 0.0
                             let checkInSchedule = data["checkInSchedule"] as? String ?? ""
                             let checkInQuestion = data["checkInQuestion"] as? String ?? ""
-                            let isComplete = data["isComplete"] as? Bool
+                            let isComplete: String
 
+                            // Convert boolean to string if needed
+                            if let isCompleteBool = data["isComplete"] as? Bool {
+                                isComplete = isCompleteBool ? "true" : "false"
+                            } else {
+                                isComplete = data["isComplete"] as? String ?? ""
+                            }
                             let goal = GoalCloud(name: name,
                                                  startDate: startDate,
                                                  endDate: endDate,
@@ -106,6 +112,9 @@ class ProfessionalGroupViewController: UIViewController {
                         // Print the number of goals fetched for the friend
                         print("Number of goals fetched for \(friendUID): \(self?.viewerGoals.count ?? 0)")
 
+                        // Sort the userGoals array by startDate in descending order
+                        self?.viewerGoals.sort(by: { $0.startDate > $1.startDate })
+                        
                         // Reload table view after fetching goals for the friend
                         self?.tableView.reloadData()
                     }
@@ -148,13 +157,21 @@ class ProfessionalGroupViewController: UIViewController {
          cell.viewerImage.image = UIImage(named: "eye")
          cell.viewerLabel.text = goal.ownerName ?? "" // Set the owner's username here
 
-         switch goal.checkInSuccessRate {
-         case 80.0...:
-             cell.statusImage.image = UIImage(named: "Green")
-         case 65.0..<80.0:
-             cell.statusImage.image = UIImage(named: "Yellow")
-         default:
-             cell.statusImage.image = UIImage(named: "Red")
+         if goal.isComplete == "true" {
+             cell.statusImage.image = UIImage(named: "GreenCheck")
+         }
+         else if goal.isComplete == "false" {
+             cell.statusImage.image = UIImage(named: "RedCheck")
+         }
+         else {
+             switch goal.checkInSuccessRate {
+             case 80.0...:
+                 cell.statusImage.image = UIImage(named: "Green")
+             case 65.0..<80.0:
+                 cell.statusImage.image = UIImage(named: "Yellow")
+             default:
+                 cell.statusImage.image = UIImage(named: "Red")
+             }
          }
          
          print("tapped\(indexPath.row)")

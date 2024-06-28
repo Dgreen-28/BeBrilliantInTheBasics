@@ -33,8 +33,18 @@ class SignUpViewController:  UIViewController, UITextFieldDelegate {
         view.endEditing(true)
     }
     private func setupBackground() {
+        // Determine the background image based on device type
+        let backgroundImageName: String
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            backgroundImageName = "AddGoalsBG_iPad"
+        } else if UIDevice.current.userInterfaceIdiom == .phone {
+            backgroundImageName = "Add Goals"
+        } else {
+            backgroundImageName = "Add Goals"
+        }
+        
         // Add background image view covering the entire view
-        let backgroundImageView = UIImageView(image: UIImage(named: "Add Goals"))
+        let backgroundImageView = UIImageView(image: UIImage(named: backgroundImageName))
         backgroundImageView.contentMode = .scaleToFill
         backgroundImageView.frame = view.bounds
         view.addSubview(backgroundImageView)
@@ -149,12 +159,13 @@ class SignUpViewController:  UIViewController, UITextFieldDelegate {
                         print("Account created successfully")
             
                         let alertController = UIAlertController(title: "Account creted", message: "", preferredStyle: .alert)
-                        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+                        let okAction = UIAlertAction(title: "OK", style: .default) { _ in
+                            // Dismiss the current view controller when OK is tapped
+                            self.dismiss(animated: true, completion: nil)
+                        }
                         alertController.addAction(okAction)
                         self.present(alertController, animated: true, completion: nil)
                         
-                        // Dismiss the current view controller
-                        self.dismiss(animated: true, completion: nil)
                     }
                 }
             }
@@ -231,7 +242,7 @@ class SignUpViewController:  UIViewController, UITextFieldDelegate {
         passwordTextField.translatesAutoresizingMaskIntoConstraints = false
         reEnterPasswordTextField.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            emailTextField.topAnchor.constraint(equalTo: signUpLabel.bottomAnchor, constant: 20),
+            emailTextField.topAnchor.constraint(equalTo: signUpLabel.bottomAnchor, constant: 100),
             emailTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             emailTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             emailTextField.heightAnchor.constraint(equalToConstant: 50),

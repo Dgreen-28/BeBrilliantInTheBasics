@@ -23,27 +23,21 @@ class CheckInDataViewController: UIViewController {
         
         
          // Set up the table view
-         tableView = UITableView()
-         tableView.translatesAutoresizingMaskIntoConstraints = false
-         view.addSubview(tableView)
-         
-         // Set constraints for the table view
-         NSLayoutConstraint.activate([
-             tableView.topAnchor.constraint(equalTo: view.topAnchor),
-             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-         ])
+        tableView = UITableView()
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(tableView)
          
          // Register custom table view cell
-         tableView.register(CheckInTableViewCell.self, forCellReuseIdentifier: CheckInTableViewCell.reuseIdentifier)
+        tableView.register(CheckInTableViewCell.self, forCellReuseIdentifier: CheckInTableViewCell.reuseIdentifier)
          
          // Set the delegate and data source
-         tableView.dataSource = self
-         tableView.delegate = self
-         
+        tableView.dataSource = self
+        tableView.delegate = self
+        
+        view.backgroundColor = .white
+
          // Set the title to the goal title
-         self.title = goalTitle
+        self.title = goalTitle
          
          // Calculate check-in success rate and format as percentage
         let formattedSuccessRate = formatCheckInSuccessRate(goal!.checkInSuccessRate)
@@ -64,10 +58,40 @@ class CheckInDataViewController: UIViewController {
          // Add the bar button item to the right side of the navigation bar
          navigationItem.rightBarButtonItem = successRateItem
          
+        // Add the info button
+        let infoButton = UIButton(type: .system)
+        infoButton.translatesAutoresizingMaskIntoConstraints = false
+        infoButton.tintColor = .darkGray
+        infoButton.setImage(UIImage(systemName: "info.circle"), for: .normal)
+        infoButton.addTarget(self, action: #selector(infoButtonTapped), for: .touchUpInside)
+        view.addSubview(infoButton)
+        
+        NSLayoutConstraint.activate([
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 50),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        
+        // Set constraints for the info button
+        NSLayoutConstraint.activate([
+            infoButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 5),
+            infoButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -15),
+            infoButton.widthAnchor.constraint(equalToConstant: 35),
+            infoButton.heightAnchor.constraint(equalToConstant: 35)
+        ])
         // Load check-in data
         loadCheckInData()
     }
     
+    @objc func infoButtonTapped() {
+        let infopageVC = InfoPageViewController()
+        infopageVC.infoText = "checkIn Data Page" // Pass the appropriate case identifier
+        infopageVC.modalPresentationStyle = .overCurrentContext
+        infopageVC.modalTransitionStyle = .crossDissolve
+        present(infopageVC, animated: true, completion: nil)
+    }
+
     func formatCheckInSuccessRate(_ successRate: Double) -> String {
         // Round the success rate to one decimal place
         let roundedRate = String(format: "%.1f", successRate)

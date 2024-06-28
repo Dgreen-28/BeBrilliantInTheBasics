@@ -20,7 +20,10 @@ class AddGoalViewController: UIViewController, AddViewersViewControllerDelegate,
     @IBOutlet weak var checkInQTextView: UITextView!
     @IBOutlet weak var addGoalButton: UIButton!
     @IBOutlet weak var addViewersButton: UIButton!
-    
+    @IBOutlet weak var infoButton: UIButton!
+    @IBOutlet weak var backgroundImageView: UIImageView!
+    @IBOutlet weak var checkInQTextViewHeightConstraint: NSLayoutConstraint!
+
     var viewersEdited: Bool = false
     var friendsToAdd: [String] = []
     var goal: GoalCloud?
@@ -41,7 +44,29 @@ class AddGoalViewController: UIViewController, AddViewersViewControllerDelegate,
     override func viewDidLoad() {
         super.viewDidLoad()
         hidesBottomBarWhenPushed = true
+        // Determine the background image based on device type
+        let backgroundImageName: String
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                backgroundImageName = "AddGoalsBG_iPad"
+            } else if UIDevice.current.userInterfaceIdiom == .phone {
+                backgroundImageName = "Add Goals"
+            } else {
+                backgroundImageName = "Add Goals"
+            }
 
+            // Add background image view covering the entire view
+            let backgroundImageView = UIImageView(image: UIImage(named: backgroundImageName))
+            backgroundImageView.contentMode = .scaleToFill
+            backgroundImageView.frame = view.bounds
+            view.addSubview(backgroundImageView)
+            view.sendSubviewToBack(backgroundImageView)
+
+
+        // Adjust height of checkInQTextView for small devices
+        if isSmallDevice() {
+            checkInQTextViewHeightConstraint.constant = 45
+        }
+        
         // Set delegates for text view and picker view
         goalTextField.autocapitalizationType = .sentences
         checkInRepeatPicker.dataSource = self
@@ -122,13 +147,25 @@ class AddGoalViewController: UIViewController, AddViewersViewControllerDelegate,
     @objc func dismissKeyboard() {
         view.endEditing(true)
     }
+    private func isSmallDevice() -> Bool {
+        let screenHeight = UIScreen.main.bounds.height
+        return screenHeight <= 667.0 // iPhone SE (1st generation) height
+    }
     
+    @IBAction func infoTapped(_ sender: Any) {
+        let infopageVC = InfoPageViewController()
+        infopageVC.infoText = "setupGoal" // Pass the appropriate case identifier
+        infopageVC.modalPresentationStyle = .overCurrentContext
+        infopageVC.modalTransitionStyle = .crossDissolve
+        present(infopageVC, animated: true, completion: nil)
+    }
     @IBAction func addViewersTapped(_ sender: Any) {
         print("current: \(friendsToAdd)")
         let addViewersVC = AddViewersViewController()
         addViewersVC.goal = goal
         addViewersVC.delegate = self
         addViewersVC.friendsToAdd = friendsToAdd
+        addViewersVC.viewersEdited = viewersEdited
         self.navigationController?.pushViewController(addViewersVC, animated: true)
     }
     @IBAction func AddGoalTapped(_ sender: Any) {
@@ -146,7 +183,7 @@ class AddGoalViewController: UIViewController, AddViewersViewControllerDelegate,
             let goalType = goalTypeOption[goalTypePicker.selectedRow(inComponent: 0)]
             let checkInQuestion = checkInQTextView.text ?? ""
             let checkInSuccessRate = 0.0 // Modify according to your logic
-            let isComplete: Bool? = nil // Initial value, can be nil
+            let isComplete = "nil" // Initial value, can be nil
 
             let updatedData: [String: Any] = [
                 "name": name,
@@ -154,7 +191,8 @@ class AddGoalViewController: UIViewController, AddViewersViewControllerDelegate,
                 "endDate": endDate,
                 "goalType": goalType,
                 "checkInSchedule": checkInSchedule,
-                "checkInQuestion": checkInQuestion
+                "checkInQuestion": checkInQuestion,
+                "isComplete": isComplete
             ]
 
             // Check if goal name is empty

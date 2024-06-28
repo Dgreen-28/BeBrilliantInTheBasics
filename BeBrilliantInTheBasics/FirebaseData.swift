@@ -9,14 +9,14 @@ import Foundation
 import FirebaseFirestore
 import FirebaseAuth
 
+var fbComplete: Bool?
+
 struct GoalCheckin {
     var documentID: String? // Add documentID property
     let goalId: String
     let goalName: String
     let isComplete: Bool
     let dateCompleted: Date
-    
-
 }
 struct GoalCloud {
     var documentID: String? // Add documentID property
@@ -27,7 +27,7 @@ struct GoalCloud {
     var checkInSuccessRate: Double
     let checkInSchedule: String
     let checkInQuestion: String
-    var isComplete: Bool? // Optional, as it can be nil initially
+    var isComplete: String // Optional, as it can be nil initially
     var checkInHistory: [GoalCheckin] // Array to store check-in history
     var viewers: [String] // Array to store friend IDs who are viewers of the goal
     var ownerName: String? // Add this property
@@ -65,11 +65,9 @@ func addGoalToFirebase(goal: inout GoalCloud, userId: String, viewers: [String],
         "checkInSuccessRate": goal.checkInSuccessRate,
         "checkInSchedule": goal.checkInSchedule,
         "checkInQuestion": goal.checkInQuestion,
+        "isComplete": goal.isComplete,
         "viewers": viewers // Add viewers to data
     ]
-    if let isComplete = goal.isComplete {
-        data["isComplete"] = isComplete
-    }
 
     // Convert Date objects to Timestamp
     let startDateTimestamp = Timestamp(date: goal.startDate)
@@ -88,6 +86,22 @@ func addGoalToFirebase(goal: inout GoalCloud, userId: String, viewers: [String],
 }
 
 
+private func updateGoalCompletionStatus(goalId: String, isComplete: Bool, completion: @escaping (Error?) -> Void) {
+    let db = Firestore.firestore()
+    guard let currentUser = Auth.auth().currentUser else {
+        let error = NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
+        completion(error)
+        return
+    }
+
+    let goalRef = db.collection("users").document(currentUser.uid).collection("goals").document(goalId)
+    goalRef.updateData([
+        "isComplete": isComplete,
+        "doneGoal": isComplete
+    ]) { error in
+        completion(error)
+    }
+}
 
 func addCheckinToFirebase(goalId: String, goalName: String, isComplete: Bool, dateCompleted: Date, userId: String, completion: @escaping (Error?) -> Void) {
     let db = Firestore.firestore()

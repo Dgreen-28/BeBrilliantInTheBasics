@@ -13,13 +13,14 @@ import FirebaseFirestore
 class FindUsersViewController: UIViewController {
     
     private var tableView: UITableView!
+
     private let searchBar: UISearchBar = {
-        let searchBar = UISearchBar()
-        searchBar.backgroundColor = .clear
-        searchBar.placeholder = "Search Users"
-        searchBar.autocapitalizationType = .none // Disable autocapitalization
-        return searchBar
-    }()
+ let searchBar = UISearchBar()
+ searchBar.backgroundColor = .clear
+ searchBar.placeholder = "Search Users"
+ searchBar.autocapitalizationType = .none // Disable autocapitalization
+ return searchBar
+}()
     
     private var users: [(username: String, email: String)] = [] // Array of tuples to store username and email
     private var userStatusCache: [String: Bool] = [:] // Cache to store whether the user is already added
@@ -255,9 +256,10 @@ class FindUsersViewController: UIViewController {
 
 extension FindUsersViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        guard let searchText = searchBar.text, !searchText.isEmpty else {
+        guard let searchText = searchBar.text?.lowercased(), !searchText.isEmpty else {
             return
         }
+        
         findUsers(withUsername: searchText)
     }
     
@@ -340,7 +342,7 @@ extension FindUsersViewController: UITableViewDataSource {
         let actionTitle = isUserAdded ? "Remove" : "Add"
         print("\(actionTitle) button tapped for user: \(email)")
         buttonAction?(email, !isUserAdded) // Trigger the closure with user's email and action status
-        findUsers(withUsername: searchBar.text ?? "")
+        findUsers(withUsername: searchBar.text?.lowercased() ?? "")
     }
 }
 

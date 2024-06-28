@@ -19,24 +19,24 @@ class AddViewersViewController: UIViewController, UITableViewDataSource, UITable
     private var db = Firestore.firestore()
     var addingFriends: [String] = [] // Array to keep track of friends being added as viewers
     var friendsToAdd: [String] = []
-    
+    var viewersEdited: Bool = false
+
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "Add Users"
-
-        print(goal ?? "new goal")
         print(friendsToAdd)
         if let goal = goal {
             addingFriends = goal.viewers
         }
         print(friendsToAdd)
         // Initialize table view
-        tableView = UITableView(frame: view.bounds, style: .plain)
-        tableView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        tableView = UITableView(frame: .zero, style: .plain)
+        tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(FriendCell.self, forCellReuseIdentifier: "FriendCell")
         view.addSubview(tableView)
+        view.backgroundColor = .white
         
         // Add save button
         let saveButton = UIButton(type: .system)
@@ -48,15 +48,34 @@ class AddViewersViewController: UIViewController, UITableViewDataSource, UITable
         saveButton.addTarget(self, action: #selector(saveButtonTapped(_:)), for: .touchUpInside)
         view.addSubview(saveButton)
         
-        // Position save button
+        // Add the info button
+        let infoButton = UIButton(type: .system)
+        infoButton.translatesAutoresizingMaskIntoConstraints = false
+        infoButton.tintColor = .darkGray
+        infoButton.setImage(UIImage(systemName: "info.circle"), for: .normal)
+        infoButton.addTarget(self, action: #selector(infoButtonTapped), for: .touchUpInside)
+        view.addSubview(infoButton)
+        
+        // Position save and info button
         saveButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             saveButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             saveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             saveButton.widthAnchor.constraint(equalToConstant: 120),
-            saveButton.heightAnchor.constraint(equalToConstant: 40)
+            saveButton.heightAnchor.constraint(equalToConstant: 40),
+            
+            infoButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 5),
+            infoButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -15),
+            infoButton.widthAnchor.constraint(equalToConstant: 35),
+            infoButton.heightAnchor.constraint(equalToConstant: 35)
         ])
-        
+        // Add constraints to tableView
+        NSLayoutConstraint.activate([
+            tableView.topAnchor.constraint(equalTo: infoButton.bottomAnchor, constant: 10),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: saveButton.topAnchor, constant: -10)
+        ])
         // Call your function to fetch and display friends
         fetchFriends()
         // Create and set the Cancel button
@@ -64,7 +83,13 @@ class AddViewersViewController: UIViewController, UITableViewDataSource, UITable
         self.navigationItem.leftBarButtonItem = cancelButton
         
     }
-    
+    @objc func infoButtonTapped() {
+        let infopageVC = InfoPageViewController()
+        infopageVC.infoText = "add Viewers Page" // Pass the appropriate case identifier
+        infopageVC.modalPresentationStyle = .overCurrentContext
+        infopageVC.modalTransitionStyle = .crossDissolve
+        present(infopageVC, animated: true, completion: nil)
+    }
     @objc func cancelButtonTapped() {
         // Handle the cancel action, usually by popping the view controller
         self.navigationController?.popViewController(animated: true)
@@ -168,16 +193,25 @@ class AddViewersViewController: UIViewController, UITableViewDataSource, UITable
                     if let fetchedUsername = userSnapshot?.data()?["username"] as? String {
                         username = fetchedUsername
                     }
+                    if self.viewersEdited == true {
+                        let isViewer = self.friendsToAdd.contains(uid)
+                        let friend = Friend(email: email, uid: uid, username: username, isViewer: isViewer)
+                        self.friends.append(friend)
+                    } else {
+                        let isViewer = self.goal?.viewers.contains(uid) ?? false
+                        let friend = Friend(email: email, uid: uid, username: username, isViewer: isViewer)
+                        self.friends.append(friend)
+                    }
 
-                    let isViewer = self.goal?.viewers.contains(uid) ?? false
-                    let friend = Friend(email: email, uid: uid, username: username, isViewer: isViewer)
-                    self.friends.append(friend)
+//                    let isViewer = self.goal?.viewers.contains(uid) ?? false
+//                    let friend = Friend(email: email, uid: uid, username: username, isViewer: isViewer)
+//                    self.friends.append(friend)
                 }
             }
 
-            // Reload table view data after all usernames are fetched
-            dispatchGroup.notify(queue: .main) {
-                self.tableView.reloadData()
+                dispatchGroup.notify(queue: .main) {
+                    self.friends.sort { $0.username < $1.username }
+                    self.tableView.reloadData()
             }
         }
     }
@@ -203,24 +237,37 @@ class AddViewersViewController: UIViewController, UITableViewDataSource, UITable
             if let index = addingFriends.firstIndex(of: friend.uid) {
                 addingFriends.remove(at: index)
             }
+            // Remove friend's UID from friendsToAdd
+            if let index = friendsToAdd.firstIndex(of: friend.uid) {
+                friendsToAdd.remove(at: index)
+            }
+            
             friends[sender.tag].isViewer = false
             sender.setTitle("Add", for: .normal)
         } else {
             // If the friend is not a viewer, add them to addingFriends
             addingFriends.append(friend.uid)
+            friendsToAdd.append(friend.uid)
             friends[sender.tag].isViewer = true
             sender.setTitle("Remove", for: .normal)
         }
         
         // Print the updated addingFriends array
         print("Adding Friends: \(addingFriends)")
+        
     }
     
     // MARK: - Button Action
     
     @objc func saveButtonTapped(_ sender: UIButton) {
         // Update the friendsToAdd array
-        delegate?.didUpdateViewers(addingFriends)
+        if self.viewersEdited == true {
+            delegate?.didUpdateViewers(friendsToAdd)
+
+        } else {
+            delegate?.didUpdateViewers(addingFriends)
+        }
+            
         delegate?.didEditViewers()
 
         // Dismiss the view controller
@@ -250,7 +297,8 @@ class FriendCell: UITableViewCell {
     }
 
     func configure(with friend: Friend, index: Int, target: Any?, action: Selector) {
-        textLabel?.text = "\(friend.username) (\(friend.email))"
+        textLabel?.text = friend.username
+//        textLabel?.text = "\(friend.username) (\(friend.email))"
         actionButton.setTitle(friend.isViewer ? "Remove" : "Add", for: .normal)
         actionButton.tag = index
         actionButton.addTarget(target, action: action, for: .touchUpInside)

@@ -12,9 +12,11 @@ import FirebaseAuth
 class ProfessionalViewController: UIViewController {
 
     
+    @IBOutlet weak var infoButton: UIButton!
     @IBOutlet weak var menuButton: UIButton!
     @IBOutlet weak var professionalSegmentedCotrol: UISegmentedControl!
     @IBOutlet weak var addGoalButton: UIButton!
+    @IBOutlet weak var notebookImage: UIImageView!
     
     private var professionalPageViewController: ProfessionalPageViewController?
     private var destiny: ProfessionalPageViewController?
@@ -22,6 +24,16 @@ class ProfessionalViewController: UIViewController {
     var indexOfCurrentModel:Int?
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        let backgroundImageName: String
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                backgroundImageName = "PROFESSIONAL2"
+            } else if UIDevice.current.userInterfaceIdiom == .phone {
+                backgroundImageName = "PROFESSIONAL1"
+            } else {
+                backgroundImageName = "PROFESSIONAL1"
+            }
+        notebookImage.image = UIImage(named: backgroundImageName)
 
         // Set separator insets programmatically
         checkAuthenticationState()
@@ -62,6 +74,14 @@ class ProfessionalViewController: UIViewController {
         }
     }
     
+    @IBAction func infoTapped(_ sender: Any) {
+        let infopageVC = InfoPageViewController()
+        infopageVC.infoText = "professional Page" // Pass the appropriate case identifier
+        infopageVC.modalPresentationStyle = .overCurrentContext
+        infopageVC.modalPresentationStyle = .overFullScreen // This will ensure the modal covers the whole screen
+        infopageVC.modalTransitionStyle = .crossDissolve // Optional: for a fade transition
+        present(infopageVC, animated: true, completion: nil)
+    }
     @IBAction func addGoalTapped(_ sender: Any) {
         let addVC = storyboard?.instantiateViewController(withIdentifier: "AddGoalViewController") as? AddGoalViewController
         addVC!.goalPage = "Professional"

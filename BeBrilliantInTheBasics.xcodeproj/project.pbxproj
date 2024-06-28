@@ -49,6 +49,7 @@
 		32D32E122B748A6D007F1E95 /* ProfessionalIndividualViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D32E112B748A6D007F1E95 /* ProfessionalIndividualViewController.swift */; };
 		32D32E142B748A87007F1E95 /* ProfessionalGroupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D32E132B748A87007F1E95 /* ProfessionalGroupViewController.swift */; };
 		32D32E162B7A76DF007F1E95 /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D32E152B7A76DF007F1E95 /* TestData.swift */; };
+		32DF9BD12C2D06D300A52E83 /* InfoPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32DF9BD02C2D06D300A52E83 /* InfoPageViewController.swift */; };
 		32E788042B8CF6A300458D07 /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32E788032B8CF6A300458D07 /* SignInViewController.swift */; };
 		32E788412B8E5DCC00458D07 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 32E788402B8E5DCC00458D07 /* GoogleService-Info.plist */; };
 		32E788432B8E68FE00458D07 /* FirebaseSignIn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32E788422B8E68FE00458D07 /* FirebaseSignIn.swift */; };
@@ -93,6 +94,7 @@
 		32D32E112B748A6D007F1E95 /* ProfessionalIndividualViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfessionalIndividualViewController.swift; sourceTree = "<group>"; };
 		32D32E132B748A87007F1E95 /* ProfessionalGroupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfessionalGroupViewController.swift; sourceTree = "<group>"; };
 		32D32E152B7A76DF007F1E95 /* TestData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestData.swift; sourceTree = "<group>"; };
+		32DF9BD02C2D06D300A52E83 /* InfoPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoPageViewController.swift; sourceTree = "<group>"; };
 		32E788032B8CF6A300458D07 /* SignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInViewController.swift; sourceTree = "<group>"; };
 		32E788402B8E5DCC00458D07 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		32E788422B8E68FE00458D07 /* FirebaseSignIn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseSignIn.swift; sourceTree = "<group>"; };
@@ -180,6 +182,7 @@
 				3211B8232B65F20F00B4701F /* TabViewController.swift */,
 				32A434D32B68177400003935 /* FirebaseData.swift */,
 				32E788422B8E68FE00458D07 /* FirebaseSignIn.swift */,
+				32DF9BD02C2D06D300A52E83 /* InfoPageViewController.swift */,
 				3211B8252B65F3E500B4701F /* Views */,
 				32A580F62B59B35F009C7522 /* Main.storyboard */,
 				32A580F92B59B362009C7522 /* Assets.xcassets */,
@@ -332,6 +335,7 @@
 				32D32E142B748A87007F1E95 /* ProfessionalGroupViewController.swift in Sources */,
 				32BA5E472B71880C004F2334 /* PersonalGroupViewController.swift in Sources */,
 				32AE311F2BB0DE0B00E5BC06 /* SettingsTableViewCell.swift in Sources */,
+				32DF9BD12C2D06D300A52E83 /* InfoPageViewController.swift in Sources */,
 				328DDF1D2B70621700713EA7 /* AddGoalViewController.swift in Sources */,
 				32D32E162B7A76DF007F1E95 /* TestData.swift in Sources */,
 				32A434D42B68177400003935 /* FirebaseData.swift in Sources */,
@@ -523,8 +527,8 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UIStatusBarStyle = "";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -558,8 +562,8 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UIStatusBarStyle = "";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

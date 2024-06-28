@@ -32,6 +32,14 @@ class NotificationsViewController: UIViewController, UIPickerViewDataSource, UIP
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(titleLabel)
         
+        // Add the info button
+        let infoButton = UIButton(type: .system)
+        infoButton.translatesAutoresizingMaskIntoConstraints = false
+        infoButton.tintColor = .darkGray
+        infoButton.setImage(UIImage(systemName: "info.circle"), for: .normal)
+        infoButton.addTarget(self, action: #selector(infoButtonTapped), for: .touchUpInside)
+        view.addSubview(infoButton)
+        
         notificationPicker = UIPickerView()
         notificationPicker.dataSource = self
         notificationPicker.delegate = self
@@ -58,8 +66,20 @@ class NotificationsViewController: UIViewController, UIPickerViewDataSource, UIP
             saveButton.topAnchor.constraint(equalTo: notificationPicker.bottomAnchor, constant: 40),
             saveButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             saveButton.widthAnchor.constraint(equalToConstant: 100),
-            saveButton.heightAnchor.constraint(equalToConstant: 50)
+            saveButton.heightAnchor.constraint(equalToConstant: 50),
+            
+            infoButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 40),
+            infoButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -15),
+            infoButton.widthAnchor.constraint(equalToConstant: 35),
+            infoButton.heightAnchor.constraint(equalToConstant: 35)
         ])
+    }
+    @objc func infoButtonTapped() {
+        let infopageVC = InfoPageViewController()
+        infopageVC.infoText = "notification Page" // Pass the appropriate case identifier
+        infopageVC.modalPresentationStyle = .overCurrentContext
+        infopageVC.modalTransitionStyle = .crossDissolve
+        present(infopageVC, animated: true, completion: nil)
     }
 
     private func requestNotificationPermission() {

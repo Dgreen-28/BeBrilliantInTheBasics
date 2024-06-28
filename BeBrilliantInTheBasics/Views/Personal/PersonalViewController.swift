@@ -12,13 +12,26 @@ class PersonalViewController: UIViewController, UIViewControllerTransitioningDel
     @IBOutlet weak var personalSegmentedCotrol: UISegmentedControl!
     private var personalPageViewController: PersonalPageViewController?
 
+    @IBOutlet weak var infoButton: UIButton!
     @IBOutlet weak var menuButton: UIButton!
     @IBOutlet weak var addGoalButton: UIButton!
+    @IBOutlet weak var notebookImage: UIImageView!
+    
     private var destiny: PersonalPageViewController?
     
     var indexOfCurrentModel:Int?
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let backgroundImageName: String
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                backgroundImageName = "PERSONAL2"
+            } else if UIDevice.current.userInterfaceIdiom == .phone {
+                backgroundImageName = "PERSONAL1"
+            } else {
+                backgroundImageName = "PPERSONAL1"
+            }
+        notebookImage.image = UIImage(named: backgroundImageName)
         
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(didGetNotification(_:)),
@@ -50,6 +63,14 @@ class PersonalViewController: UIViewController, UIViewControllerTransitioningDel
         navigationController?.pushViewController(menuVC!, animated: true)
     }
     
+    @IBAction func infoTapped(_ sender: Any) {
+        let infopageVC = InfoPageViewController()
+        infopageVC.infoText = "personal Page" // Pass the appropriate case identifier
+        infopageVC.modalPresentationStyle = .overCurrentContext
+        infopageVC.modalPresentationStyle = .overFullScreen // This will ensure the modal covers the whole screen
+        infopageVC.modalTransitionStyle = .crossDissolve // Optional: for a fade transition
+        present(infopageVC, animated: true, completion: nil)
+    }
     @IBAction func addTapped(_ sender: Any) {
         let addVC = storyboard?.instantiateViewController(withIdentifier: "AddGoalViewController") as? AddGoalViewController
         addVC!.goalPage = "Personal"
