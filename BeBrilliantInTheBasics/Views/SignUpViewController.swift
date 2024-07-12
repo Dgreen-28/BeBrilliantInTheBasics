@@ -99,6 +99,14 @@ class SignUpViewController:  UIViewController, UITextFieldDelegate {
         alertController.addAction(okAction)
         present(alertController, animated: true, completion: nil)
     }
+    func containsRestrictedWords(_ text: String, restrictedWords: [String]) -> Bool {
+        for word in restrictedWords {
+            if text.lowercased().contains(word.lowercased()) {
+                return true
+            }
+        }
+        return false
+    }
 
     @objc private func signUpButtonTapped() {
         // Perform validation on email and password fields
@@ -117,7 +125,12 @@ class SignUpViewController:  UIViewController, UITextFieldDelegate {
             presentAlert(with: "Passwords don't match.")
             return
         }
-
+        // Check for restricted words in username
+        if containsRestrictedWords(username, restrictedWords: Constants.restrictedWords) {
+             print("Username not allowed.")
+             presentAlert(with: "Username not allowed.")
+             return
+         }
         let db = Firestore.firestore()
         
         // Check if email is already in use
@@ -158,7 +171,7 @@ class SignUpViewController:  UIViewController, UITextFieldDelegate {
                         // Account created successfully
                         print("Account created successfully")
             
-                        let alertController = UIAlertController(title: "Account creted", message: "", preferredStyle: .alert)
+                        let alertController = UIAlertController(title: "Account created", message: "", preferredStyle: .alert)
                         let okAction = UIAlertAction(title: "OK", style: .default) { _ in
                             // Dismiss the current view controller when OK is tapped
                             self.dismiss(animated: true, completion: nil)
@@ -196,6 +209,7 @@ class SignUpViewController:  UIViewController, UITextFieldDelegate {
         emailTextField.leftView = eleftView
         emailTextField.leftViewMode = .always
         emailTextField.autocapitalizationType = .none // Disable autocapitalization
+        emailTextField.autocorrectionType = .no // Disable autocorrect
         view.addSubview(emailTextField)
         
         // Add username text field
@@ -207,6 +221,7 @@ class SignUpViewController:  UIViewController, UITextFieldDelegate {
         usernameTextField.leftView = uleftView
         usernameTextField.leftViewMode = .always
         usernameTextField.autocapitalizationType = .none // Disable autocapitalization
+        usernameTextField.autocorrectionType = .no // Disable autocorrect
         usernameTextField.delegate = self
         usernameTextField.tag = 1 // Assign a unique tag to this text field
         view.addSubview(usernameTextField)
@@ -242,7 +257,7 @@ class SignUpViewController:  UIViewController, UITextFieldDelegate {
         passwordTextField.translatesAutoresizingMaskIntoConstraints = false
         reEnterPasswordTextField.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            emailTextField.topAnchor.constraint(equalTo: signUpLabel.bottomAnchor, constant: 100),
+            emailTextField.topAnchor.constraint(equalTo: signUpLabel.bottomAnchor, constant: 20),
             emailTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             emailTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             emailTextField.heightAnchor.constraint(equalToConstant: 50),

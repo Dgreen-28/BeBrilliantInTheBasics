@@ -7,11 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		320F766C2C41EB71008D9156 /* ContactUsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 320F766B2C41EB71008D9156 /* ContactUsViewController.swift */; };
 		3211B8242B65F21000B4701F /* TabViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3211B8232B65F20F00B4701F /* TabViewController.swift */; };
 		3211B8272B65F49A00B4701F /* PersonalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3211B8262B65F49A00B4701F /* PersonalViewController.swift */; };
 		3211B8292B65F4B200B4701F /* CheckInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3211B8282B65F4B200B4701F /* CheckInViewController.swift */; };
 		32198B4C2BFECCF400B93CBB /* ViewUsersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32198B4B2BFECCF400B93CBB /* ViewUsersViewController.swift */; };
 		322C8BA02BF5985500157156 /* AddViewersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 322C8B9F2BF5985500157156 /* AddViewersViewController.swift */; };
+		323FBA832C40D7BC004B2FCA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 323FBA822C40D7BC004B2FCA /* GoogleService-Info.plist */; };
+		32554CF22C34E67000C930EF /* TranscriptViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32554CF12C34E66F00C930EF /* TranscriptViewController.swift */; };
+		3256ADE12C3242AA006AC365 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 3256ADE02C3242AA006AC365 /* GoogleMobileAds */; };
+		3256ADE32C336828006AC365 /* FAQsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3256ADE22C336828006AC365 /* FAQsViewController.swift */; };
 		326B2EC42C10E859006748FE /* NotificationsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326B2EC32C10E859006748FE /* NotificationsViewController.swift */; };
 		326B2EC62C111F9E006748FE /* ManualCheckInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326B2EC52C111F9E006748FE /* ManualCheckInViewController.swift */; };
 		326B2EC82C137366006748FE /* AccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326B2EC72C137365006748FE /* AccountViewController.swift */; };
@@ -51,17 +56,21 @@
 		32D32E162B7A76DF007F1E95 /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D32E152B7A76DF007F1E95 /* TestData.swift */; };
 		32DF9BD12C2D06D300A52E83 /* InfoPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32DF9BD02C2D06D300A52E83 /* InfoPageViewController.swift */; };
 		32E788042B8CF6A300458D07 /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32E788032B8CF6A300458D07 /* SignInViewController.swift */; };
-		32E788412B8E5DCC00458D07 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 32E788402B8E5DCC00458D07 /* GoogleService-Info.plist */; };
+		32E788412B8E5DCC00458D07 /* GoogleService-Info1.plist in Resources */ = {isa = PBXBuildFile; fileRef = 32E788402B8E5DCC00458D07 /* GoogleService-Info1.plist */; };
 		32E788432B8E68FE00458D07 /* FirebaseSignIn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32E788422B8E68FE00458D07 /* FirebaseSignIn.swift */; };
 		32E788452B96562C00458D07 /* FindUsersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32E788442B96562C00458D07 /* FindUsersViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		320F766B2C41EB71008D9156 /* ContactUsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactUsViewController.swift; sourceTree = "<group>"; };
 		3211B8232B65F20F00B4701F /* TabViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabViewController.swift; sourceTree = "<group>"; };
 		3211B8262B65F49A00B4701F /* PersonalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalViewController.swift; sourceTree = "<group>"; };
 		3211B8282B65F4B200B4701F /* CheckInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckInViewController.swift; sourceTree = "<group>"; };
 		32198B4B2BFECCF400B93CBB /* ViewUsersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewUsersViewController.swift; sourceTree = "<group>"; };
 		322C8B9F2BF5985500157156 /* AddViewersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddViewersViewController.swift; sourceTree = "<group>"; };
+		323FBA822C40D7BC004B2FCA /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		32554CF12C34E66F00C930EF /* TranscriptViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptViewController.swift; sourceTree = "<group>"; };
+		3256ADE22C336828006AC365 /* FAQsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FAQsViewController.swift; sourceTree = "<group>"; };
 		326B2EC32C10E859006748FE /* NotificationsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsViewController.swift; sourceTree = "<group>"; };
 		326B2EC52C111F9E006748FE /* ManualCheckInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManualCheckInViewController.swift; sourceTree = "<group>"; };
 		326B2EC72C137365006748FE /* AccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountViewController.swift; sourceTree = "<group>"; };
@@ -96,7 +105,7 @@
 		32D32E152B7A76DF007F1E95 /* TestData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestData.swift; sourceTree = "<group>"; };
 		32DF9BD02C2D06D300A52E83 /* InfoPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoPageViewController.swift; sourceTree = "<group>"; };
 		32E788032B8CF6A300458D07 /* SignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInViewController.swift; sourceTree = "<group>"; };
-		32E788402B8E5DCC00458D07 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		32E788402B8E5DCC00458D07 /* GoogleService-Info1.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info1.plist"; sourceTree = "<group>"; };
 		32E788422B8E68FE00458D07 /* FirebaseSignIn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseSignIn.swift; sourceTree = "<group>"; };
 		32E788442B96562C00458D07 /* FindUsersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FindUsersViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -110,6 +119,7 @@
 				32AE31132B9D468A00E5BC06 /* FirebaseAuth in Frameworks */,
 				32AE31092B9D45A500E5BC06 /* FirebaseAnalytics in Frameworks */,
 				32AE310B2B9D45A500E5BC06 /* FirebaseAnalyticsOnDeviceConversion in Frameworks */,
+				3256ADE12C3242AA006AC365 /* GoogleMobileAds in Frameworks */,
 				32AE31112B9D45A500E5BC06 /* FirebaseAppCheck in Frameworks */,
 				32AE310F2B9D45A500E5BC06 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
 				32AE31152B9D469100E5BC06 /* FirebaseFirestore in Frameworks */,
@@ -188,7 +198,8 @@
 				32A580F92B59B362009C7522 /* Assets.xcassets */,
 				32A580FB2B59B362009C7522 /* LaunchScreen.storyboard */,
 				32A580FE2B59B362009C7522 /* Info.plist */,
-				32E788402B8E5DCC00458D07 /* GoogleService-Info.plist */,
+				323FBA822C40D7BC004B2FCA /* GoogleService-Info.plist */,
+				32E788402B8E5DCC00458D07 /* GoogleService-Info1.plist */,
 			);
 			path = BeBrilliantInTheBasics;
 			sourceTree = "<group>";
@@ -206,7 +217,9 @@
 				32AE311C2BB0D7B800E5BC06 /* SettingsViewController.swift */,
 				32AE311E2BB0DE0B00E5BC06 /* SettingsTableViewCell.swift */,
 				326B2EC72C137365006748FE /* AccountViewController.swift */,
+				320F766B2C41EB71008D9156 /* ContactUsViewController.swift */,
 				326B2EC32C10E859006748FE /* NotificationsViewController.swift */,
+				3256ADE22C336828006AC365 /* FAQsViewController.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -214,8 +227,8 @@
 		32BA5E412B71876A004F2334 /* Professional */ = {
 			isa = PBXGroup;
 			children = (
-				32D32E0A2B7489BD007F1E95 /* ProfessionalPageViewController.swift */,
 				32A580F42B59B35F009C7522 /* ProfessionalViewController.swift */,
+				32D32E0A2B7489BD007F1E95 /* ProfessionalPageViewController.swift */,
 				32D32E112B748A6D007F1E95 /* ProfessionalIndividualViewController.swift */,
 				32D32E132B748A87007F1E95 /* ProfessionalGroupViewController.swift */,
 			);
@@ -242,6 +255,7 @@
 				32D32E0F2B748A3C007F1E95 /* CheckInGroupViewController.swift */,
 				32AE31172B9F5E3300E5BC06 /* DateHeaderTableViewCell.swift */,
 				32CE4AE12BC0ECC5004D0BC3 /* CheckInDataViewController.swift */,
+				32554CF12C34E66F00C930EF /* TranscriptViewController.swift */,
 				326B2EC52C111F9E006748FE /* ManualCheckInViewController.swift */,
 			);
 			path = CheckIn;
@@ -271,6 +285,7 @@
 				32AE31102B9D45A500E5BC06 /* FirebaseAppCheck */,
 				32AE31122B9D468A00E5BC06 /* FirebaseAuth */,
 				32AE31142B9D469100E5BC06 /* FirebaseFirestore */,
+				3256ADE02C3242AA006AC365 /* GoogleMobileAds */,
 			);
 			productName = BeBrilliantInTheBasics;
 			productReference = 32A580ED2B59B35F009C7522 /* BeBrilliantInTheBasics.app */;
@@ -302,6 +317,7 @@
 			mainGroup = 32A580E42B59B35F009C7522;
 			packageReferences = (
 				32AE31072B9D45A500E5BC06 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				3256ADDF2C3242AA006AC365 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
 			);
 			productRefGroup = 32A580EE2B59B35F009C7522 /* Products */;
 			projectDirPath = "";
@@ -319,8 +335,9 @@
 			files = (
 				32A580FD2B59B362009C7522 /* LaunchScreen.storyboard in Resources */,
 				32A580FA2B59B362009C7522 /* Assets.xcassets in Resources */,
-				32E788412B8E5DCC00458D07 /* GoogleService-Info.plist in Resources */,
+				32E788412B8E5DCC00458D07 /* GoogleService-Info1.plist in Resources */,
 				328DDF1B2B703B9100713EA7 /* RepeatTableViewCell.xib in Resources */,
+				323FBA832C40D7BC004B2FCA /* GoogleService-Info.plist in Resources */,
 				32A580F82B59B35F009C7522 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -345,6 +362,7 @@
 				32D32E092B748983007F1E95 /* CheckInPageViewController.swift in Sources */,
 				32BA5E452B7187F7004F2334 /* PersonalIndividualViewController.swift in Sources */,
 				32D32E102B748A3C007F1E95 /* CheckInGroupViewController.swift in Sources */,
+				3256ADE32C336828006AC365 /* FAQsViewController.swift in Sources */,
 				32AE311A2BA78B4B00E5BC06 /* TestViewController.swift in Sources */,
 				3211B8242B65F21000B4701F /* TabViewController.swift in Sources */,
 				32198B4C2BFECCF400B93CBB /* ViewUsersViewController.swift in Sources */,
@@ -352,9 +370,11 @@
 				3211B8272B65F49A00B4701F /* PersonalViewController.swift in Sources */,
 				32A580F52B59B35F009C7522 /* ProfessionalViewController.swift in Sources */,
 				326B2EC62C111F9E006748FE /* ManualCheckInViewController.swift in Sources */,
+				32554CF22C34E67000C930EF /* TranscriptViewController.swift in Sources */,
 				322C8BA02BF5985500157156 /* AddViewersViewController.swift in Sources */,
 				32E788452B96562C00458D07 /* FindUsersViewController.swift in Sources */,
 				32E788042B8CF6A300458D07 /* SignInViewController.swift in Sources */,
+				320F766C2C41EB71008D9156 /* ContactUsViewController.swift in Sources */,
 				32A580F12B59B35F009C7522 /* AppDelegate.swift in Sources */,
 				32E788432B8E68FE00458D07 /* FirebaseSignIn.swift in Sources */,
 				32AE31182B9F5E3300E5BC06 /* DateHeaderTableViewCell.swift in Sources */,
@@ -517,25 +537,30 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
-				DEVELOPMENT_TEAM = FU5874BN54;
+				CURRENT_PROJECT_VERSION = 27;
+				DEVELOPMENT_TEAM = 32W9YAFW3N;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BeBrilliantInTheBasics/Info.plist;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "We use tracking to deliver personalized ads to you.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.05;
-				PRODUCT_BUNDLE_IDENTIFIER = com.Decoreyon.BeBrilliantInTheBasics;
+				MARKETING_VERSION = 1.27;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Kelvin.BeBrilliantInTheBasics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
@@ -552,25 +577,30 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
-				DEVELOPMENT_TEAM = FU5874BN54;
+				CURRENT_PROJECT_VERSION = 27;
+				DEVELOPMENT_TEAM = 32W9YAFW3N;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BeBrilliantInTheBasics/Info.plist;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "We use tracking to deliver personalized ads to you.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.05;
-				PRODUCT_BUNDLE_IDENTIFIER = com.Decoreyon.BeBrilliantInTheBasics;
+				MARKETING_VERSION = 1.27;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Kelvin.BeBrilliantInTheBasics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
@@ -605,6 +635,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		3256ADDF2C3242AA006AC365 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.6.0;
+			};
+		};
 		32AE31072B9D45A500E5BC06 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -616,6 +654,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		3256ADE02C3242AA006AC365 /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3256ADDF2C3242AA006AC365 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
+		};
 		32AE31082B9D45A500E5BC06 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 32AE31072B9D45A500E5BC06 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

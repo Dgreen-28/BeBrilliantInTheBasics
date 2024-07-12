@@ -8,14 +8,16 @@
 
 import UIKit
 
-class TabViewController: UITabBarController {
+class TabViewController: UITabBarController, UITabBarControllerDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        // Set the delegate
+        self.delegate = self
+
         // Set up your custom tab bar images
         if let tabBarItems = tabBar.items {
-            // Replace "your_unselected_image" and "your_selected_image" with your actual image names
             tabBarItems[0].image = UIImage(named: "Professional-Clear")?.withRenderingMode(.alwaysOriginal)
             tabBarItems[0].selectedImage = UIImage(named: "Professional-Color")?.withRenderingMode(.alwaysOriginal)
 
@@ -24,13 +26,21 @@ class TabViewController: UITabBarController {
             
             tabBarItems[2].image = UIImage(named: "Checkin-Clear")?.withRenderingMode(.alwaysOriginal)
             tabBarItems[2].selectedImage = UIImage(named: "Checkin-Color")?.withRenderingMode(.alwaysOriginal)
-
         }
 
         // Disable tint color to avoid color overlay
         tabBar.tintColor = UIColor.clear
         tabBar.unselectedItemTintColor = UIColor.clear
-        
 
+        // Debug logging
+        print("TabViewController viewDidLoad")
+    }
+
+    // Implement the delegate method
+    func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
+        // Handle tab selection
+        if let selectedIndex = viewControllers?.firstIndex(of: viewController) {
+            print("Selected tab index: \(selectedIndex)")
+        }
     }
 }

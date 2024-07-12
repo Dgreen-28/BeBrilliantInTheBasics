@@ -39,7 +39,7 @@ class InfoPageViewController: UIViewController {
 //            "On this page you can add & edit your Goals! \n \n Add a name, give it a start & end date, choose it's check in schedule, choose the goal type and a check in question. \n \n You can also make this a group goal by adding viewers from your list of added users."
         case "checkIn Page":
             infoTextView.text = """
-            This Check-in tab helps you track the status of your goals.
+            This Check-in section helps you track the status of your goals.
 
             
             • Individual Page: Goals with no viewers.

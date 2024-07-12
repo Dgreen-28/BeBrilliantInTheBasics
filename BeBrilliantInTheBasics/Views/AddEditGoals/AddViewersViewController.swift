@@ -224,6 +224,7 @@ class AddViewersViewController: UIViewController, UITableViewDataSource, UITable
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "FriendCell", for: indexPath) as! FriendCell
+        cell.selectionStyle = .none
         let friend = friends[indexPath.row]
         cell.configure(with: friend, index: indexPath.row, target: self, action: #selector(handleActionButtonTapped(_:)))
         return cell

@@ -247,7 +247,10 @@ class CheckInIndividualViewController: UIViewController {
             return true
         case "Weekly":
             let daysDifference = Calendar.current.dateComponents([.day], from: goal.startDate, to: date).day ?? 0
-            return daysDifference % 7 == 0
+            return daysDifference % 7 == 0 && daysDifference >= 0
+
+//            let daysDifference = Calendar.current.dateComponents([.day], from: goal.startDate, to: date).day ?? 0
+//            return daysDifference % 7 == 0
         case "Weekdays":
             guard let weekday = Calendar.current.dateComponents([.weekday], from: date).weekday else {
                 return false

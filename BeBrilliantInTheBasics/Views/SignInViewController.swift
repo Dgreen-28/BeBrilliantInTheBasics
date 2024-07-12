@@ -194,6 +194,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
             if success {
                 // Login successful, proceed with next steps (e.g., navigate to next screen)
                 print("Login successful")
+                UserDefaults.standard.set(false, forKey: "helpShown")
                 self.dismiss(animated: true, completion: nil)
             } else {
                 // Login failed, handle error (e.g., show error message to user)

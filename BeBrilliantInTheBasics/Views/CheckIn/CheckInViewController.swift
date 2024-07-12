@@ -5,9 +5,10 @@
 //  Created by Decoreyon Green on 1/27/24.
 //
 
+import GoogleMobileAds
 import UIKit
 
-class CheckInViewController: UIViewController {
+class CheckInViewController: UIViewController, GADBannerViewDelegate {
 
     @IBOutlet weak var checkInSegmentedCotrol: UISegmentedControl!
     private var personalPageViewController: CheckInPageViewController?
@@ -16,21 +17,55 @@ class CheckInViewController: UIViewController {
     private var destiny: CheckInPageViewController?
     @IBOutlet weak var notebookImage: UIImageView!
     
+    private let banner: GADBannerView = {
+        let banner = GADBannerView()
+        banner.adUnitID = "ca-app-pub-3709637295446963/3949085655"
+        banner.load(GADRequest())
+        banner.backgroundColor = .secondarySystemBackground
+        return banner }()
+    
     var indexOfCurrentModel:Int?
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        // Determine the background image based on device type
         let backgroundImageName: String
-            if UIDevice.current.userInterfaceIdiom == .pad {
-                backgroundImageName = "CheckIn2"
-            } else if UIDevice.current.userInterfaceIdiom == .phone {
-                backgroundImageName = "CheckIn1"
-            } else {
-                backgroundImageName = "CheckIn1"
-            }
-        notebookImage.image = UIImage(named: backgroundImageName)
+          if UIDevice.current.userInterfaceIdiom == .pad {
+              backgroundImageName = "CheckIn2"
+          } else {
+              backgroundImageName = "CheckIn1"
+          }
+
+          // Debug statement to check which image is being selected
+          print("Selected background image name: \(backgroundImageName)")
+
+          // Set the background image
+          if let backgroundImage = UIImage(named: backgroundImageName) {
+              notebookImage.image = backgroundImage
+              notebookImage.contentMode = .scaleToFill
+          } else {
+              print("Image not found: \(backgroundImageName)")
+          }
+//        let backgroundImageName: String
+//            if UIDevice.current.userInterfaceIdiom == .pad {
+//                backgroundImageName = "CheckIn2"
+//            } else if UIDevice.current.userInterfaceIdiom == .phone {
+//                backgroundImageName = "CheckIn1"
+//            } else {
+//                backgroundImageName = "CheckIn1"
+//            }
+//        notebookImage.image = UIImage(named: backgroundImageName)
         
         // Do any additional setup after loading the view.
+        banner.rootViewController = self
+        view.addSubview(banner)
+        banner.delegate = self
+    }
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+//        banner.frame = CGRect(x: 10,
+//                              y: view.safeAreaInsets.top + 10,
+//                              width: view.frame.size.width - 20,
+//                              height: 35).integral
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

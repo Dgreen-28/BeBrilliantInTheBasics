@@ -46,21 +46,22 @@ class AddGoalViewController: UIViewController, AddViewersViewControllerDelegate,
         hidesBottomBarWhenPushed = true
         // Determine the background image based on device type
         let backgroundImageName: String
-            if UIDevice.current.userInterfaceIdiom == .pad {
-                backgroundImageName = "AddGoalsBG_iPad"
-            } else if UIDevice.current.userInterfaceIdiom == .phone {
-                backgroundImageName = "Add Goals"
-            } else {
-                backgroundImageName = "Add Goals"
-            }
+          if UIDevice.current.userInterfaceIdiom == .pad {
+              backgroundImageName = "AddGoalsBG_iPad"
+          } else {
+              backgroundImageName = "Add Goals"
+          }
 
-            // Add background image view covering the entire view
-            let backgroundImageView = UIImageView(image: UIImage(named: backgroundImageName))
-            backgroundImageView.contentMode = .scaleToFill
-            backgroundImageView.frame = view.bounds
-            view.addSubview(backgroundImageView)
-            view.sendSubviewToBack(backgroundImageView)
+          // Debug statement to check which image is being selected
+          print("Selected background image name: \(backgroundImageName)")
 
+          // Set the background image
+          if let backgroundImage = UIImage(named: backgroundImageName) {
+              backgroundImageView.image = backgroundImage
+              backgroundImageView.contentMode = .scaleToFill
+          } else {
+              print("Image not found: \(backgroundImageName)")
+          }
 
         // Adjust height of checkInQTextView for small devices
         if isSmallDevice() {
@@ -138,12 +139,45 @@ class AddGoalViewController: UIViewController, AddViewersViewControllerDelegate,
         
         addViewersButton.layer.cornerRadius = 12.5
 
+        // Register for keyboard notifications
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         
         // Do any additional setup after loading the view.
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(tapGesture)
     }
+    func adjustViewWhenKeyboardShows(notification: Notification) {
+        if let keyboardFrame: NSValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
+            let keyboardHeight = keyboardFrame.cgRectValue.height
+            let bottomSpace = self.view.frame.height - (checkInQTextView.frame.origin.y + checkInQTextView.frame.height)
+            self.view.frame.origin.y -= (keyboardHeight - bottomSpace + 100)
+        }
+    }
+    @objc func keyboardWillShow(_ notification: Notification) {
 
+        if let activeView = self.view.findFirstResponder() as? UITextField {
+            if activeView == goalTextField {
+                return // Ignore if the keyboard is arising from goalTextField
+            }
+        }
+        // Proceed with adjusting the view for other cases
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            // Ignore
+        } else if UIDevice.current.userInterfaceIdiom == .phone {
+            adjustViewWhenKeyboardShows(notification: notification)
+        } else {
+            adjustViewWhenKeyboardShows(notification: notification)
+        }
+    }
+
+    @objc func keyboardWillHide(_ notification: Notification) {
+        self.view.frame.origin.y = 0
+    }
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: AddGoalViewController.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: AddGoalViewController.keyboardWillHideNotification, object: nil)
+    }
     @objc func dismissKeyboard() {
         view.endEditing(true)
     }
@@ -202,10 +236,16 @@ class AddGoalViewController: UIViewController, AddViewersViewControllerDelegate,
             }
 
             // Check if check-in question is empty when check-in schedule is not "none"
-            if checkInSchedule != "none" && checkInQuestion.isEmpty {
-                presentAlert(title: "Error", message: "You need to provide a check-in question.")
-                return
-            }
+        let selectedIndex = checkInRepeatPicker.selectedRow(inComponent: 0)
+
+        if selectedIndex != 0 && checkInQuestion.isEmpty  {
+            presentAlert(title: "Error", message: "You need to provide a check-in question.")
+            return
+        }
+//            if checkInSchedule != "none" && checkInQuestion.isEmpty {
+//                presentAlert(title: "Error", message: "You need to provide a check-in question.")
+//                return
+//            }
 
             let db = Firestore.firestore()
 
@@ -470,6 +510,19 @@ extension AddGoalViewController: UIPickerViewDataSource, UIPickerViewDelegate {
             return checkInRepeatOptions[row]
         } else if pickerView == goalTypePicker {
             return goalTypeOption[row]
+        }
+        return nil
+    }
+}
+extension UIView {
+    func findFirstResponder() -> UIView? {
+        if isFirstResponder {
+            return self
+        }
+        for subview in subviews {
+            if let firstResponder = subview.findFirstResponder() {
+                return firstResponder
+            }
         }
         return nil
     }

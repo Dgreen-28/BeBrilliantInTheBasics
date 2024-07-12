@@ -5,9 +5,10 @@
 //  Created by Decoreyon Green on 1/27/24.
 //
 
+import GoogleMobileAds
 import UIKit
 
-class PersonalViewController: UIViewController, UIViewControllerTransitioningDelegate {
+class PersonalViewController: UIViewController, UIViewControllerTransitioningDelegate, GADBannerViewDelegate {
 
     @IBOutlet weak var personalSegmentedCotrol: UISegmentedControl!
     private var personalPageViewController: PersonalPageViewController?
@@ -19,25 +20,60 @@ class PersonalViewController: UIViewController, UIViewControllerTransitioningDel
     
     private var destiny: PersonalPageViewController?
     
+    private let banner: GADBannerView = {
+        let banner = GADBannerView()
+        banner.adUnitID = "ca-app-pub-3709637295446963/3389229758"
+        banner.load(GADRequest())
+        banner.backgroundColor = .secondarySystemBackground
+        return banner }()
+    
     var indexOfCurrentModel:Int?
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        loadHelp()
+        // Determine the background image based on device type
         let backgroundImageName: String
-            if UIDevice.current.userInterfaceIdiom == .pad {
-                backgroundImageName = "PERSONAL2"
-            } else if UIDevice.current.userInterfaceIdiom == .phone {
-                backgroundImageName = "PERSONAL1"
-            } else {
-                backgroundImageName = "PPERSONAL1"
-            }
-        notebookImage.image = UIImage(named: backgroundImageName)
+          if UIDevice.current.userInterfaceIdiom == .pad {
+              backgroundImageName = "PERSONAL2"
+          } else {
+              backgroundImageName = "PERSONAL1"
+          }
+
+          // Debug statement to check which image is being selected
+          print("Selected background image name: \(backgroundImageName)")
+
+          // Set the background image
+          if let backgroundImage = UIImage(named: backgroundImageName) {
+              notebookImage.image = backgroundImage
+              notebookImage.contentMode = .scaleToFill
+          } else {
+              print("Image not found: \(backgroundImageName)")
+          }
+//        let backgroundImageName: String
+//            if UIDevice.current.userInterfaceIdiom == .pad {
+//                backgroundImageName = "PERSONAL2"
+//            } else if UIDevice.current.userInterfaceIdiom == .phone {
+//                backgroundImageName = "PERSONAL1"
+//            } else {
+//                backgroundImageName = "PPERSONAL1"
+//            }
+//        notebookImage.image = UIImage(named: backgroundImageName)
         
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(didGetNotification(_:)),
                                                name: NSNotification.Name("text"),
                                                object: nil)
         // Do any additional setup after loading the view.
+        banner.rootViewController = self
+        view.addSubview(banner)
+        banner.delegate = self
+    }
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+//        banner.frame = CGRect(x: 10,
+//                              y: view.safeAreaInsets.top + 10,
+//                              width: view.frame.size.width - 20,
+//                              height: 35).integral
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -57,7 +93,27 @@ class PersonalViewController: UIViewController, UIViewControllerTransitioningDel
             break
         }
     }
+    private func loadHelp() {
+        let helpOption = UserDefaults.standard.bool(forKey: "helpShown")
+        if helpOption == false {
+            presentHowTo()
+            print("show how-to")
+        } else{
+            print("how-to shown")
+        }
+    }
     
+    func presentHowTo() {
+        let alert = UIAlertController(title: "Watch Tutorial", message: "Would you like to watch a tutorial on how this app is used", preferredStyle: .alert)
+        let deleteAction = UIAlertAction(title: "Yes", style: .default) { _ in
+            self.openYouTubeVideo()
+        }
+        let cancelAction = UIAlertAction(title: "No", style: .destructive, handler: nil)
+        UserDefaults.standard.set(true, forKey: "helpShown")
+        alert.addAction(deleteAction)
+        alert.addAction(cancelAction)
+        present(alert, animated: true, completion: nil)
+    }
     @IBAction func menuTapped(_ sender: Any) {
         let menuVC = storyboard?.instantiateViewController(withIdentifier: "menuViewController") as? SettingsViewController
         navigationController?.pushViewController(menuVC!, animated: true)
@@ -84,9 +140,19 @@ class PersonalViewController: UIViewController, UIViewControllerTransitioningDel
         case "LogOut":
             print("LogOut Recieved")
             logoutUser()
+        case "deletedAccount":
+            print("deletedAccount Recieved")
+            deletedAcccont()
         default:
             print("nil")
         }
+    }
+    
+    func  deletedAcccont(){
+        let signInVC = SignInViewController()
+        signInVC.modalPresentationStyle = .fullScreen
+        self.present(signInVC, animated: true, completion: nil)
+        // Navigate to sign-in screen or perform any other necessary action
     }
     func logoutUser(){
         print("log out")
@@ -113,5 +179,16 @@ class PersonalViewController: UIViewController, UIViewControllerTransitioningDel
         alert.addAction(UIAlertAction(title: "Cancel",
                                       style: .cancel, handler: nil))
         self.present(alert, animated: true)
+    }
+    func openYouTubeVideo() {
+        let videoID = "rBNkZcwa7GA"
+        let youtubeAppURL = URL(string: "youtube://\(videoID)")!
+        let youtubeWebURL = URL(string: "https://www.youtube.com/watch?v=\(videoID)")!
+        
+        if UIApplication.shared.canOpenURL(youtubeAppURL) {
+            UIApplication.shared.open(youtubeAppURL, options: [:], completionHandler: nil)
+        } else {
+            UIApplication.shared.open(youtubeWebURL, options: [:], completionHandler: nil)
+        }
     }
 }

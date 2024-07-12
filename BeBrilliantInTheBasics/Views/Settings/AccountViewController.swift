@@ -14,6 +14,7 @@ class AccountViewController: UIViewController, UITableViewDelegate, UITableViewD
     // UI Elements
     private let tableView = UITableView()
     private var currentUsername: String?
+    var option = ""
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,7 +24,10 @@ class AccountViewController: UIViewController, UITableViewDelegate, UITableViewD
         setupTableView()
         fetchCurrentUsername()
     }
-    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        NotificationCenter.default.post(name: NSNotification.Name("text"), object: option)
+    }
     private func setupTableView() {
         tableView.delegate = self
         tableView.dataSource = self
@@ -58,15 +62,22 @@ class AccountViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return section == 0 ? 1 : 3
+        return section == 0 ? 2 : 3
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == 0 {
-            let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "usernameCell")
-            cell.textLabel?.text = currentUsername
-            cell.detailTextLabel?.text = "Change Username"
-            return cell
+            if indexPath.row == 0 {
+                let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "usernameCell")
+                cell.textLabel?.text = currentUsername
+                cell.detailTextLabel?.text = "Change Username"
+                return cell
+            } else {
+                let cell = UITableViewCell(style: .default, reuseIdentifier: "shareCell")
+                cell.textLabel?.text = "Share Account"
+                cell.textLabel?.textColor = .black
+                return cell
+            }
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
             switch indexPath.row {
@@ -77,20 +88,22 @@ class AccountViewController: UIViewController, UITableViewDelegate, UITableViewD
             case 2:
                 cell.textLabel?.text = "Delete Account"
                 cell.textLabel?.textColor = .red
-//            case 3:
-//                cell.textLabel?.text = "Delete Account"
-//                cell.textLabel?.textColor = .red
             default:
                 break
             }
             return cell
         }
     }
-    
+
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         if indexPath.section == 0 {
-            changeUsername()
+            if indexPath.row == 0 {
+                changeUsername()
+            } else {
+                shareAccount()
+            }
         } else {
             switch indexPath.row {
             case 0:
@@ -99,13 +112,12 @@ class AccountViewController: UIViewController, UITableViewDelegate, UITableViewD
                 deleteAllGoals()
             case 2:
                 deleteAccount()
-//            case 3:
-//                deleteAccount()
             default:
                 break
             }
         }
     }
+
     
     // Actions
     @objc private func changeUsername() {
@@ -149,28 +161,33 @@ class AccountViewController: UIViewController, UITableViewDelegate, UITableViewD
         // Present the alert
         self.present(alert, animated: true, completion: nil)
     }
-//    @objc private func changeUsername() {
-//        let alert = UIAlertController(title: "Change Username", message: "Enter new username", preferredStyle: .alert)
-//        alert.addTextField { textField in
-//            textField.placeholder = "New Username"
-//            textField.autocapitalizationType = .none // Disable autocapitalization
-//
-//        }
-//        let saveAction = UIAlertAction(title: "Save", style: .default) { _ in
-//            guard let newUsername = alert.textFields?.first?.text, !newUsername.isEmpty else { return }
-//            self.updateUsername(newUsername.lowercased())
-//        }
-//        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-//        alert.addAction(saveAction)
-//        alert.addAction(cancelAction)
-//        present(alert, animated: true, completion: nil)
-//    }
+
     private func presentAlert(title: String, message: String) {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
         alertController.addAction(okAction)
         self.present(alertController, animated: true, completion: nil)
     }
+    @objc private func shareAccount() {
+        guard let username = currentUsername else {
+            presentAlert(title: "Error", message: "Username not available.")
+            return
+        }
+        
+        let appLink = "https://apps.apple.com/app/id6535688539" // Replace with your actual app link
+        let message = "Add me in Be Brilliant in the Basics app! Username: \(username). Download the app here: \(appLink)"
+        
+        if let url = URL(string: "fb-messenger://share?link=\(message.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")") {
+            if UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            } else {
+                let fallbackMessage = "Add me in Be Brilliant in the Basics app! Username: \(username). Download the app here: \(appLink)"
+                let activityVC = UIActivityViewController(activityItems: [fallbackMessage], applicationActivities: nil)
+                present(activityVC, animated: true, completion: nil)
+            }
+        }
+    }
+
     @objc private func changePassword() {
         let alertController = UIAlertController(title: "Change Password", message: "Enter your email to reset your password.", preferredStyle: .alert)
         alertController.addTextField { textField in
@@ -200,20 +217,6 @@ class AccountViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         present(alertController, animated: true, completion: nil)
         
-            //        let alert = UIAlertController(title: "Change Password", message: "Enter new password", preferredStyle: .alert)
-            //        alert.addTextField { textField in
-            //            textField.placeholder = "New Password"
-            //            textField.isSecureTextEntry = true
-            //        }
-            //        let saveAction = UIAlertAction(title: "Save", style: .default) { _ in
-            //            guard let newPassword = alert.textFields?.first?.text, !newPassword.isEmpty else { return }
-            //            self.updatePassword(newPassword)
-            //        }
-            //        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-            //        alert.addAction(saveAction)
-            //        alert.addAction(cancelAction)
-            //        present(alert, animated: true, completion: nil)
-        
     }
     @objc private func deleteAllGoals() {
         let alert = UIAlertController(title: "Delete All Goals", message: "Are you sure you want to delete all your goals?", preferredStyle: .alert)
@@ -225,19 +228,15 @@ class AccountViewController: UIViewController, UITableViewDelegate, UITableViewD
         alert.addAction(cancelAction)
         present(alert, animated: true, completion: nil)
     }
-    
-    @objc private func removeSelfFromGoals() {
-        let alert = UIAlertController(title: "Remove Self from Goals", message: "Are you sure you want to remove yourself from all goals?", preferredStyle: .alert)
-        let removeAction = UIAlertAction(title: "Remove", style: .destructive) { _ in
-            self.performRemoveSelfFromGoals()
+    func containsRestrictedWords(_ text: String, restrictedWords: [String]) -> Bool {
+        for word in restrictedWords {
+            if text.lowercased().contains(word.lowercased()) {
+                return true
+            }
         }
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        alert.addAction(removeAction)
-        alert.addAction(cancelAction)
-        present(alert, animated: true, completion: nil)
+        return false
     }
-    
-    @objc private func deleteAccount() {
+    func presentDeleteAccountAlert() {
         let alert = UIAlertController(title: "Delete Account", message: "Are you sure you want to delete your account? This action cannot be undone.", preferredStyle: .alert)
         let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { _ in
             self.performDeleteAccount()
@@ -247,8 +246,69 @@ class AccountViewController: UIViewController, UITableViewDelegate, UITableViewD
         alert.addAction(cancelAction)
         present(alert, animated: true, completion: nil)
     }
+
+    func performDeleteAccount() {
+        guard let user = Auth.auth().currentUser else {
+            print("No user is logged in.")
+            return
+        }
+        
+        let db = Firestore.firestore()
+        let userId = user.uid
+        
+        // Delete the user from Firestore
+        db.collection("users").document(userId).delete { error in
+            if let error = error {
+                print("Error deleting user from Firestore: \(error.localizedDescription)")
+                self.presentAlert(title: "Error", message: "Failed to delete account data.")
+                return
+            }
+            
+            // Delete the user's account from Firebase Authentication
+            user.delete { error in
+                if let error = error {
+                    print("Error deleting user from Firebase Auth: \(error.localizedDescription)")
+                    self.presentAlert(title: "Error", message: "Failed to delete account.")
+                    return
+                }
+                
+                // Account deleted successfully, navigate to root view controller
+                print("Account deleted successfully.")
+                self.presentAlert(title: "Success", message: "Your account has been deleted.") { _ in
+                    self.option = "deletedAccount"
+            self.navigationController?.popViewController(animated: true)
+                }
+            }
+        }
+    }
+
+    private func presentAlert(title: String, message: String, completion: ((UIAlertAction) -> Void)? = nil) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .default, handler: completion)
+        alertController.addAction(okAction)
+        self.present(alertController, animated: true, completion: nil)
+    }
+
+    @objc private func deleteAccount() {
+        presentDeleteAccountAlert()
+//        let alert = UIAlertController(title: "Delete Account", message: "Are you sure you want to delete your account? This action cannot be undone.", preferredStyle: .alert)
+//        let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { _ in
+//            self.performDeleteAccount()
+//        }
+//        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+//        alert.addAction(deleteAction)
+//        alert.addAction(cancelAction)
+//        present(alert, animated: true, completion: nil)
+    }
     
     private func updateUsername(_ newUsername: String) {
+        
+        // Check for restricted words in username
+        if containsRestrictedWords(newUsername, restrictedWords: Constants.restrictedWords) {
+             print("Username not allowed.")
+             presentAlert(with: "Username not allowed.")
+             return
+         }
         guard let currentUser = Auth.auth().currentUser else { return }
         let db = Firestore.firestore()
         db.collection("users").document(currentUser.uid).updateData(["username": newUsername]) { error in
@@ -260,6 +320,7 @@ class AccountViewController: UIViewController, UITableViewDelegate, UITableViewD
                 self.tableView.reloadData()
             }
         }
+        
     }
     
     private func updatePassword(_ newPassword: String) {
@@ -272,6 +333,12 @@ class AccountViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
         }
     }
+    func presentAlert(with message: String) {
+        let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+        alertController.addAction(okAction)
+        present(alertController, animated: true, completion: nil)
+    }
     private func performDeleteAllGoals() {
         guard let currentUser = Auth.auth().currentUser else {
             // Handle the case where there's no logged-in user
@@ -280,10 +347,11 @@ class AccountViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         let db = Firestore.firestore()
         
-        // Fetch all goals for the current user
-        db.collection("users").document(currentUser.uid).collection("goals").getDocuments { [weak self] (snapshot, error) in
-            guard let self = self else { return }
-            
+        // Reference to the goals collection for the current user
+        let goalsCollectionRef = db.collection("users").document(currentUser.uid).collection("goals")
+        
+        // Delete all documents in the goals collection
+        goalsCollectionRef.getDocuments { (snapshot, error) in
             if let error = error {
                 print("Error fetching goals: \(error.localizedDescription)")
                 return
@@ -294,81 +362,34 @@ class AccountViewController: UIViewController, UITableViewDelegate, UITableViewD
                 return
             }
             
-            let dispatchGroup = DispatchGroup()
+            let batch = db.batch()
             
-            for document in documents {
-                dispatchGroup.enter()
-                let goalIdToDelete = document.documentID
-                print("Goal ID to delete: \(goalIdToDelete)")
-                
-                db.collection("users").document(currentUser.uid).collection("goals").document(goalIdToDelete).delete() { error in
-                    if let error = error {
-                        print("Error deleting goal: \(error.localizedDescription)")
-                    } else {
-                        print("Goal:\(goalIdToDelete) deleted successfully")
-                    }
-                    dispatchGroup.leave()
+            documents.forEach { batch.deleteDocument($0.reference) }
+            
+            // Commit the batch delete
+            batch.commit { error in
+                if let error = error {
+                    print("Error deleting goals: \(error.localizedDescription)")
+                } else {
+                    print("All goals deleted successfully")
                 }
-            }
-            
-            // Notify when all deletions are done
-            dispatchGroup.notify(queue: .main) {
-                print("All goals deleted successfully")
             }
         }
     }
 
-//    private func performDeleteAllGoals() {
+//    private func performDeleteAccount() {
 //        guard let currentUser = Auth.auth().currentUser else { return }
-//        let db = Firestore.firestore()
-//        db.collection("users").document(currentUser.uid).collection("goals").getDocuments { snapshot, error in
+//        currentUser.delete { error in
 //            if let error = error {
-//                print("Error fetching goals: \(error.localizedDescription)")
-//                return
+//                print("Error deleting account: \(error.localizedDescription)")
+//            } else {
+//                print("Account deleted successfully")
 //            }
-//            guard let documents = snapshot?.documents else { return }
-//            for document in documents {
-//                document.reference.delete { error in
-//                    if let error = error {
-//                        print("Error deleting goal: \(error.localizedDescription)")
-//                    }
-//                }
-//            }
-//            print("All goals deleted successfully")
 //        }
 //    }
-    
-    private func performRemoveSelfFromGoals() {
-        guard let currentUser = Auth.auth().currentUser else { return }
-        let db = Firestore.firestore()
-        db.collection("goals").whereField("viewers", arrayContains: currentUser.uid).getDocuments { snapshot, error in
-            if let error = error {
-                print("Error fetching goals: \(error.localizedDescription)")
-                return
-            }
-            guard let documents = snapshot?.documents else { return }
-            for document in documents {
-                document.reference.updateData(["viewers": FieldValue.arrayRemove([currentUser.uid])]) { error in
-                    if let error = error {
-                        print("Error removing self from goal: \(error.localizedDescription)")
-                    }
-                }
-            }
-            print("Removed self from all goals successfully")
-        }
-    }
-    
-    private func performDeleteAccount() {
-        guard let currentUser = Auth.auth().currentUser else { return }
-        currentUser.delete { error in
-            if let error = error {
-                print("Error deleting account: \(error.localizedDescription)")
-            } else {
-                print("Account deleted successfully")
-            }
-        }
-    }
 }
+
+
 /*
  //
  //  AccountViewController.swift

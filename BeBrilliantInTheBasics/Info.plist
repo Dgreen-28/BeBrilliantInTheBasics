@@ -4,6 +4,13 @@
 <dict>
 	<key>CFBundleIconName</key>
 	<string>AppIcon</string>
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-3709637295446963~2286254852</string>
+	<key>SKAdNetworkItems</key>
+	<array>
+		<string>network1.skadnetwork</string>
+		<string>network2.skadnetwork</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
